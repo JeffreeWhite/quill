@@ -1,0 +1,97 @@
+@use "sass:map";
+@use "sass:meta";
+
+
+$__const__: ();
+
+/**
+ * @access private
+ * @param {String} $name
+ * @param {Mixed} $value
+ * @return {Void} change $__const__
+ */
+@mixin __set-const($name, $value) {
+    $__const__: map.merge($__const__, ($name: $value)) !global;
+}
+
+/**
+ * @access private
+ * @param {String} $name
+ * @return {Void} change $__const
+ */
+@mixin __remove-const($name) {
+    $__const__: map.remove($__const__, $name) !global;
+}
+
+/**
+ * @access private
+ * @param {String} $name
+ * @return {Mixed} $__const__
+ */
+@function __get-const($name) {
+    @return map.get($__const__, $name);
+}
+
+/**
+ * @access private
+ * @param {String} $name
+ * @return {Boolean}
+ */
+@function __const-exist($name) {
+    @return map.has-key($__const__, $name);
+}
+
+
+
+/**
+ * @access public
+ * @wrapper mixin __set-const
+ * @param {String} $name
+ * @param {Mixed} $value
+ * @return {Void}
+ */
+@mixin set($name, $value) {
+    @if map.has-key($__const__, $name) {
+        @error "Constant with name '#{$name}' already exists";
+    }
+
+    @include __set-const($name, $value);
+}
+
+/**
+ * @access public
+ * @wrapper mixin __remove-const
+ * @param {String} $name
+ * @return {Void}
+ */
+@mixin remove($name) {
+    @if not map.has-key($__const__, $name) {
+        @error "Constant with name '#{$name}' already exists";
+    }
+
+    @include __remove-const($name);
+}
+
+/**
+ * @access public
+ * @wrapper function __get-const
+ * @param {String} $name
+ * @return {Mixed} $__const__
+ */
+@function get($name) {
+    @if not map.has-key($__const__, $name) {
+        @error "Constant with name '#{$name}' not exists";
+    }
+
+    @return meta.call(meta.get-function("__get-const"), $name);
+}
+
+/**
+ * @access public
+ * @wrapper function __const-exist
+ * @param {String} $name
+ * @return {Boolean}
+ */
+@function exist($name) {
+    @return meta.call(meta.get-function("__const-exist"), $name);
+}
