@@ -17,7 +17,7 @@ $__const__: ();
 /**
  * @access private
  * @param {String} $name
- * @return {Void} change $__const
+ * @return {Void} change $__const__
  */
 @mixin __remove-const($name) {
     $__const__: map.remove($__const__, $name) !global;
@@ -37,7 +37,7 @@ $__const__: ();
  * @param {String} $name
  * @return {Boolean}
  */
-@function __const-exist($name) {
+@function __const-exists($name) {
     @return map.has-key($__const__, $name);
 }
 
@@ -88,10 +88,10 @@ $__const__: ();
 
 /**
  * @access public
- * @wrapper function __const-exist
+ * @wrapper function __const-exists
  * @param {String} $name
  * @return {Boolean}
  */
-@function exist($name) {
-    @return meta.call(meta.get-function("__const-exist"), $name);
+@function exists($name) {
+    @return meta.call(meta.get-function("__const-exists"), $name);
 }
