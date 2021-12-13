@@ -29,13 +29,23 @@
         }
     }
 
-    @return if($minus, -$result, $result);;
+    @return if($minus, -$result, $result);
+}
+
+@mixin __simple-col($value, $padding) {
+    flex-basis: $value;
+    max-width: $value;
+    padding-left: $padding;
+    padding-right: $padding;
 }
 
 
 @mixin col($width, $padding: 15px) {
     $values: "";
 
+    @if ($width == null) {
+        @error "Incorect value of the $width parameter";
+    }
     @if (meta.type-of($width) == "string") {
         $values: string.unquote($width);
     }
@@ -49,17 +59,5 @@
         $values: math.percentage($first / $second);
     }
 
-    flex-basis: $values;
-    max-width: $values;
-
-    padding-left: $padding;
-    padding-right: $padding;
+    @include __simple-col($values, $padding);
 }
-
-//@include col("50%");
-//@include col("200px");
-//@include col(50%);
-//@include col(200px);
-//@include col("1/2");
-//
-//@include col((md: ("1/2", 15), lg: ("4/12", 15)));
