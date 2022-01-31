@@ -1,0 +1,51 @@
+@use "sass:meta";
+
+@function __is-number($__value__) {
+    @return if(meta.type-of($__value__) == "number", true, false);
+}
+@function __is-string($__value__) {
+    @return if(meta.type-of($__value__) == "string", true, false);
+}
+@function __is-list($__value__) {}
+@function __is-map($__value__) {}
+
+@function __is-scalar($value) {
+    @return if(number($value) or string($value), true, false);
+}
+
+
+
+@function string($__value__) {
+    @return meta.call(
+        meta.function-exists("__is-string"),
+        $__value__
+    );
+}
+@function number($__value__) {
+    @return meta.call(
+        meta.function-exists("__is-number"),
+        $__value__
+    );
+}
+
+@function null($value) {
+    @return if(meta.type-of($value) == "null", true, false);
+}
+@function color($value) {
+    @return if(meta.type-of($value) == "color", true, false);
+}
+@function list($value) {
+    @return if(meta.type-of($value) == "list", true, false);
+}
+@function map($value) {
+    @return if(meta.type-of($value) == "map", true, false);
+}
+@function args($value) {
+    @return if(meta.type-of($value) == "arglist", true, false);
+}
+
+
+
+@function scalar($value) {
+    @return if(number($value) or string($value), true, false);
+}
