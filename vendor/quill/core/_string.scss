@@ -1,0 +1,25 @@
+@use "sass:map";
+@use "sass:string";
+@use "sass:list";
+@use "sass:meta";
+
+
+// @function trim
+// @desc trim spaces from start and end of the string
+// @param {String} $__string__
+// @return {String}
+@function trim($__string__) {
+    // ToDo check a type of value
+    $__start-point: string.slice($__string__, 1, 1);
+    @if ($__start-point == " ") {
+        @return trim(string.slice($__string__, 2));
+    }
+
+    $__string-length: string.length($__string__);
+    $__end-point: string.slice($__string__, $__string-length);
+    @if ($__end-point == " ") {
+        @return trim(string.slice($__string__, 1, -2));
+    }
+
+    @return $__string__;
+}
