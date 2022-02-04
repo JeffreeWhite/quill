@@ -33,12 +33,14 @@
         $__separator-pre-index: $__separator-index - 1;
         $__separator-post-index: $__separator-index + $__separator-length;
 
-        $__list__: list.append($__list__, string.slice($__string__, 1, $__separator-pre-index), "comma");
+        $__item: trim(string.slice($__string__, 1, $__separator-pre-index));
+        $__list__: list.append($__list__, $__item, "comma");
+
         $__arg-string: string.slice($__string__, $__separator-post-index);
         $__arg-string-length: string.length($__arg-string);
 
         @return split($__arg-string, $__separator__, $__list__);
     }
 
-    @return list.append($__list__, $__string__, "comma");
+    @return list.append($__list__, trim($__string__), "comma");
 }
