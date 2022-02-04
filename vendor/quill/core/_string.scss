@@ -23,3 +23,22 @@
 
     @return $__string__;
 }
+
+
+@function split($__string__, $__separator__: null, $__list__: ()) {
+    $__separator-length: string.length($__separator__);
+    $__separator-index: string.index($__string__, $__separator__);
+
+    @if ($__separator-index) {
+        $__separator-pre-index: $__separator-index - 1;
+        $__separator-post-index: $__separator-index + $__separator-length;
+
+        $__list__: list.append($__list__, string.slice($__string__, 1, $__separator-pre-index), "comma");
+        $__arg-string: string.slice($__string__, $__separator-post-index);
+        $__arg-string-length: string.length($__arg-string);
+
+        @return split($__arg-string, $__separator__, $__list__);
+    }
+
+    @return list.append($__list__, $__string__, "comma");
+}
