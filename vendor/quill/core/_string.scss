@@ -30,17 +30,29 @@
     $__separator-index: string.index($__string__, $__separator__);
 
     @if ($__separator-index) {
-        $__separator-pre-index: $__separator-index - 1;
-        $__separator-post-index: $__separator-index + $__separator-length;
-
-        $__item: trim(string.slice($__string__, 1, $__separator-pre-index));
+        $__item: trim(string.slice($__string__, 1, ($__separator-index - 1)));
         $__list__: list.append($__list__, $__item, "comma");
 
-        $__arg-string: string.slice($__string__, $__separator-post-index);
+        $__arg-string: string.slice($__string__, ($__separator-index + $__separator-length));
         $__arg-string-length: string.length($__arg-string);
 
         @return split($__arg-string, $__separator__, $__list__);
     }
 
     @return list.append($__list__, trim($__string__), "comma");
+}
+
+
+@function replace($__string__, $__search__, $__replace__) {
+    $__search-length: string.length($__search__);
+    $__search-index: string.index($__string__, $__search__);
+
+    @if ($__search-index) {
+        $__substring-start: string.slice($__string__, 1, ($__search-index - 1)) + $__replace__;
+        $__substring-end: string.slice($__string__, ($__search-index + $__search-length));
+
+        @return $__substring-start + replace($__substring-end, $__search__, $__replace__);
+    }
+
+    @return $__string__;
 }
