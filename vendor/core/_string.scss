@@ -3,6 +3,10 @@
 @use "sass:list";
 @use "sass:meta";
 
+@function index($__string__, $__substring__) {
+    @return string.index($__string__, $__substring__);
+}
+
 
 // @function trim
 // @desc trim spaces from start and end of the string
@@ -43,15 +47,22 @@
 }
 
 
-@function replace($__string__, $__search__, $__replace__) {
+@function replace($__string__, $__search__, $__replace__, $__mask__: "all") {
     $__search-length: string.length($__search__);
     $__search-index: string.index($__string__, $__search__);
 
-    @if ($__search-index) {
+    @if ($__search-index and $__mask__ == "all") {
         $__substring-start: string.slice($__string__, 1, ($__search-index - 1)) + $__replace__;
         $__substring-end: string.slice($__string__, ($__search-index + $__search-length));
 
         @return $__substring-start + replace($__substring-end, $__search__, $__replace__);
+    }
+
+    @if ($__search-index and $__mask__ == "first") {
+        $__substring-start: string.slice($__string__, 1, ($__search-index - 1)) + $__replace__;
+        $__substring-end: string.slice($__string__, ($__search-index + $__search-length));
+
+        @return $__substring-start + $__substring-end;
     }
 
     @return $__string__;

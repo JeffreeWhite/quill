@@ -1,0 +1,25 @@
+@use "sass:list";
+
+
+/**
+ * Shift an element off the beginning of array
+ *
+ * @param {List} $__list__
+ * @param {Number} $__start__
+ * @param {Number} $__end__
+ * @return {List}
+ */
+@function shift($__list__, $__start__: 1, $__end__: list.length($__list__)) {
+    @if ($__start__ >= $__end__) {
+        @error "Invalid parameters! "$__start__" point greater than "$__end__" point.";
+    }
+
+    $__result: ();
+    @if (list.length($__list__) <= 1 and $__start__ >= list.length($__list__)) {
+        @for $__list-key from $__start__ through $__end__ {
+            $__result: list.append($__result, list.nth($__list__, $__list-key));
+        }
+    }
+
+    @return $__result;
+}
