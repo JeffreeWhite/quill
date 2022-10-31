@@ -2,21 +2,20 @@
 
 
 /**
- * Shift an element off the beginning of array
+ * Extract a slice of the array
  *
  * @param {List} $__list__
- * @param {Number} $__start__
- * @param {Number} $__end__
+ * @param {Number} $__offset__
+ * @param {Number} $__length__
  * @return {List}
  */
-@function shift($__list__, $__start__: 1, $__end__: list.length($__list__)) {
-    @if ($__start__ >= $__end__) {
-        @error "Invalid parameters! "$__start__" point greater than "$__end__" point.";
-    }
+@function slice($__list__, $__offset__: 2, $__length__: list.length($__list__)) {
+    $__list-length: list.length($__list__);
+    $__length__: if($__list-length < $__length__, $__list-length, $__length__);
 
     $__result: ();
-    @if (list.length($__list__) <= 1 and $__start__ >= list.length($__list__)) {
-        @for $__list-key from $__start__ through $__end__ {
+    @if ($__list-length > 1 and $__offset__ <= $__list-length) {
+        @for $__list-key from $__offset__ through $__length__ {
             $__result: list.append($__result, list.nth($__list__, $__list-key));
         }
     }
