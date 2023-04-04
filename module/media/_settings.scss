@@ -1,0 +1,47 @@
+@use 'sass:map';
+
+$__media_config__: (
+    'orientation': (
+        'def': 'both',
+        'list': ('left', 'right', 'both')
+    ),
+    'types': (
+        'def': 'all',
+        'list': ('all', 'screen', 'print', 'speech')
+    ),
+    'operators': (
+        'range': ('<=', '<', '>=', '>', '==', '=')
+    ),
+    'features': (
+        '@w': (
+            'name': 'width',
+            'type': 'range',
+            'breakpoints': (sm: 300px, md: 568px, lg: 789px, xl: 1200px)
+        ),
+        '@h': (
+            'name': 'height',
+            'type': 'range',
+            'breakpoints': (sm: 300px, md: 568px, lg: 789px, xl: 1200px)
+        )
+    ),
+);
+
+@function get() {
+    @return $__media_config__;
+}
+
+@function get-type-default() {
+    @return map.get($__media_config__, 'types', 'def');
+}
+
+@function get-type-list() {
+    @return map.get($__media_config__, 'types', 'list');
+}
+@function get-feature-list() {
+    @return map.get($__media_config__, 'features');
+}
+@function get-operator-list($type: 'range') {
+    @if (map.has-key($__media_config__, 'operators', $type)) {
+        @return map.get($__media_config__, 'operators', $type);
+    }
+}

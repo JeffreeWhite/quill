@@ -1,6 +1,10 @@
 @use "sass:list";
 
 
+@function nth($list, $value) {
+    @return list.nth($list, $value);
+}
+
 /**
  * Extract a slice of the array
  *
@@ -17,6 +21,18 @@
     @if ($__list-length > 1 and $__offset__ <= $__list-length) {
         @for $__list-key from $__offset__ through $__length__ {
             $__result: list.append($__result, list.nth($__list__, $__list-key));
+        }
+    }
+
+    @return $__result;
+}
+
+
+@function filter($__list__) {
+    $__result: ();
+    @each $__item in $__list__ {
+        @if ($__item != null or $__item != '' or $__item != ' ') {
+            $__result: list.append($__result, $__item);
         }
     }
 

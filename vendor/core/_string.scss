@@ -7,6 +7,14 @@
     @return string.index($__string__, $__substring__);
 }
 
+@function slice($__string__, $__start-at__, $__end-at__: -1) {
+    @return string.slice($__string__, $__start-at__, $__end-at__)
+}
+
+@function length($__string__) {
+    @return string.length($__string__);
+}
+
 
 // @function trim
 // @desc trim spaces from start and end of the string
