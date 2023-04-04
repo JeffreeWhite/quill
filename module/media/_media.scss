@@ -26,21 +26,20 @@
 			map.keys(map.get($queryMap, 'type')),
 			null
 		);
-		
+
 		$features: map.get($queryMap, 'features');
-		
+
 		@if ($typeList == null) {
 			$typeList: list.join((), settings.get-type-default());
-		}
-		@else if (list.length($typeList) > 2 and not list.index($typeList, settings.get-type-default())) {
+		} @else if (list.length($typeList) > 2 and not list.index($typeList, settings.get-type-default())) {
 			$typeList: settings.get-type-default();
 		}
-		
+
 		$feature-list: ();
 		@each $dim, $value in $features {
 			$feature-list: list.join($feature-list, ('(#{$dim}: #{$value})'))
 		}
-		
+
 		//$result-list: ();
 		//$result-list: list.join($result-list, $typeList, $feature-list);
 		//
@@ -49,7 +48,7 @@
 		//
 		//$expressions: map.deep-merge($expressions, ($key: ()))
 	}
-	
+
 	@return $expressions;
 }
 
@@ -69,19 +68,16 @@
 	$_conditions_: lst.slice($_conditions_);
 	@return if(
 		meta.type-of($_condition) == 'list',
-
 		processing(map.deep-merge($expressions,
-			processing($expressions, $expCounter, 1, $_condition...)),
-			$expCounter + 1, $condCounter + 1, $_conditions_...
+		  processing($expressions, $expCounter, 1, $_condition...)),
+		  $expCounter + 1, $condCounter + 1, $_conditions_...
 		),
-
 		processing(map.deep-merge($expressions,
-			(#{$expCounter}: parse-expression($_condition, $expCounter, $condCounter, $expressions))),
-			$expCounter, $condCounter + 1, $_conditions_...
+		  (#{$expCounter}: parse-expression($_condition, $expCounter, $condCounter, $expressions))),
+		  $expCounter, $condCounter + 1, $_conditions_...
 		)
 	);
 }
-
 
 
 @function parse-expression($_condition_, $expCounter, $condCounter, $expression-map) {
@@ -91,11 +87,11 @@
 
 	$expressions: ();
 	$parameters: ();
-	
+
 	$type: parse-type($_condition_);
 	@if ($type != null) {
 		$expressions: map.deep-merge($expressions, (
-			'type': ($type: $type)
+		  'type': ($type: $type)
 		));
 	}
 
@@ -104,19 +100,18 @@
 		$conditions: parse-conditions($_condition_, $parameters);
 		@each $context, $condition in $conditions {
 			$feature: map.get($parameters, 'feature', 'name');
-			$operator:  parse-operator($condition, $parameters);
+			$operator: parse-operator($condition, $parameters);
 			$dimension: get-dimension($operator, $context);
 			$value: parse-value($condition, $operator, $parameters);
 
 			$expressions: map.deep-merge($expressions, (
-				'features': ('#{$dimension}-#{$feature}': $value)
+			  'features': ('#{$dimension}-#{$feature}': $value)
 			));
 		}
 	}
 
 	@return $expressions;
 }
-
 
 
 @function parse-type($condition) {
@@ -130,12 +125,11 @@
 }
 
 
-
 @function parse-conditions($condition, $parameters) {
 	$alias: map.get($parameters, 'feature', 'alias');
 	$condition: str.replace($condition, ' ', '');
 	$condition-list: str.split($condition, $alias);
-	
+
 	$condition-map: ();
 	@for $i from 1 through list.length($condition-list) {
 		@if list.nth($condition-list, $i) != '' {
@@ -147,10 +141,9 @@
 			}
 		}
 	}
-	
+
 	@return $condition-map;
 }
-
 
 
 @function parse-feature($condition, $parameters) {
@@ -158,7 +151,7 @@
 		@if (str.index($condition, $feature-alias)) {
 			$feature-params: map.set($feature-params, 'alias', $feature-alias);
 			@return map.deep-merge($parameters, (
-				'feature': $feature-params
+			  'feature': $feature-params
 			));
 		}
 	}
@@ -172,8 +165,7 @@
 
 	@if (list.index(('<=', '<'), $operator)) {
 		$result: if($context == 'left', 'min', 'max');
-	}
-	@else if (list.index(('>=', '>'), $operator)) {
+	} @else if (list.index(('>=', '>'), $operator)) {
 		$result: if($context == 'left', 'max', 'min');
 	}
 
@@ -200,7 +192,7 @@
 		map.get($breakpoints, unquote($raw-value)),
 		$raw-value
 	);
-	
+
 	@return to-number($value);
 }
 
@@ -209,16 +201,16 @@
 	@if ($chunks == ()) {
 		$chunks: map.get($expressions, #{$counter}, 'chunks');
 	}
-	
+
 	@if (list.length($chunks) < 2) {
 		@return if(map.has-key($expressions, #{$counter + 1}, 'chunks'),
-			#{list.nth($chunks, 1)}  + ' , ' + building($expressions, $counter + 1, ()),
-			#{list.nth($chunks, 1)}
+		  #{list.nth($chunks, 1)}  + ' , ' + building($expressions, $counter + 1, ()),
+		  #{list.nth($chunks, 1)}
 		);
 	}
 
 	@return #{list.nth($chunks, 1)} + ' and ' + building($expressions, $counter, List.slice($chunks));
-	
+
 	//@return if(
 	//	map.has-key($expressions, #{$counter + 1}),
 	//	#{list.nth($expression, 1)} + ' , ' + building(map.get($expressions, #{$counter + 1})),
@@ -240,16 +232,16 @@
 	$digits: 0;
 	$minus: ($first-character == '-');
 	$numbers: (
-		'0': 0,
-		'1': 1,
-		'2': 2,
-		'3': 3,
-		'4': 4,
-		'5': 5,
-		'6': 6,
-		'7': 7,
-		'8': 8,
-		'9': 9,
+	  '0': 0,
+	  '1': 1,
+	  '2': 2,
+	  '3': 3,
+	  '4': 4,
+	  '5': 5,
+	  '6': 6,
+	  '7': 7,
+	  '8': 8,
+	  '9': 9,
 	);
 
 	// Remove +/- sign if present at first character
@@ -288,21 +280,21 @@
 ///
 @function to-length($value, $unit) {
 	$units: (
-		'px': 1px,
-		'cm': 1cm,
-		'mm': 1mm,
-		'%': 1%,
-		'ch': 1ch,
-		'pc': 1pc,
-		'in': 1in,
-		'em': 1em,
-		'rem': 1rem,
-		'pt': 1pt,
-		'ex': 1ex,
-		'vw': 1vw,
-		'vh': 1vh,
-		'vmin': 1vmin,
-		'vmax': 1vmax,
+	  'px': 1px,
+	  'cm': 1cm,
+	  'mm': 1mm,
+	  '%': 1%,
+	  'ch': 1ch,
+	  'pc': 1pc,
+	  'in': 1in,
+	  'em': 1em,
+	  'rem': 1rem,
+	  'pt': 1pt,
+	  'ex': 1ex,
+	  'vw': 1vw,
+	  'vh': 1vh,
+	  'vmin': 1vmin,
+	  'vmax': 1vmax,
 	);
 
 	@if not list.index(map.keys($units), $unit) {
@@ -314,8 +306,8 @@
 
 
 $unit-intervals: (
-	'px': 1,
-	'em': 0.01,
-	'rem': 0.1,
-	'': 0,
+  'px': 1,
+  'em': 0.01,
+  'rem': 0.1,
+  '': 0,
 ) !default;
