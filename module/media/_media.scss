@@ -10,43 +10,24 @@
 @use "../../vendor/core/list" as List;
 
 @mixin query($_conditions_...) {
-    $expressions: ();
-    $expressions: processing($expressions, 1, 1, $_conditions_...);
+    $expressions: processing((), 1, 1, $_conditions_...);
     $expressions: post-processing($expressions);
-    $expressions: building($expressions);
-    @media #{$expressions} {
+    @media #{building($expressions)} {
         @content;
     }
 }
 
 @function post-processing($expressions) {
     @each $key, $queryMap in $expressions {
-        $typeList: if(
-            map.has-key($queryMap, 'type'),
-            map.keys(map.get($queryMap, 'type')),
-            null
+        $resultList: if(map.has-key($queryMap, 'type'),
+            list.join((), map.keys(map.get($queryMap, 'type')), 'comma'), ()
         );
 
-        $features: map.get($queryMap, 'features');
-
-        @if ($typeList == null) {
-            $typeList: list.join((), settings.get-type-default());
-        } @else if (list.length($typeList) > 2 and not list.index($typeList, settings.get-type-default())) {
-            $typeList: settings.get-type-default();
+        @each $dim, $value in map.get($queryMap, 'features') {
+            $resultList: list.join($resultList, ('(#{$dim}: #{$value})'), 'comma')
         }
 
-        $feature-list: ();
-        @each $dim, $value in $features {
-            $feature-list: list.join($feature-list, ('(#{$dim}: #{$value})'))
-        }
-
-        //$result-list: ();
-        //$result-list: list.join($result-list, $typeList, $feature-list);
-        //
-        $expressions: map.deep-merge($expressions, ($key: ('chunks': list.join((), $typeList, 'comma'))));
-        $expressions: map.deep-merge($expressions, ($key: ('chunks': list.join(map.get($expressions, $key, 'chunks'), $feature-list, 'comma'))));
-        //
-        //$expressions: map.deep-merge($expressions, ($key: ()))
+        $expressions: map.deep-merge($expressions, ($key: ('chunks': $resultList)));
     }
 
     @return $expressions;
