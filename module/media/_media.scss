@@ -90,26 +90,27 @@
     }
 
     $expressions: ();
-    $parameters: ();
 
     $type: _parse-type($_condition_);
     @if ($type != null) {
-        $expressions: map.deep-merge($expressions, (
+        @return map.deep-merge($expressions, (
           'type': ($type: $type)
         ));
     }
 
-    $parameters: _parse-feature($_condition_, $parameters);
-    @if ($parameters != null) {
-        $conditions: _parse-conditions($_condition_, $parameters);
-        @each $context, $condition in $conditions {
-            $feature: map.get($parameters, 'feature', 'name');
-            $operator: _parse-operator($condition, $parameters);
-            $dimension: _get-dimension($operator, $context);
-            $value: _parse-value($condition, $operator, $parameters);
+    $feature: _parse-feature($_condition_);
+    @if ($feature != null) {
+        $conditions: _parse-conditions($_condition_, $feature);
 
+        @each $context, $condition in $conditions {
+
+            $operator: _parse-operator($condition, $feature);
+            $dimension: _get-dimension($operator, $context);
+            $value: _parse-value($condition, $operator, $feature);
+
+            $featureName: map.get($feature, 'feature', 'name');
             $expressions: map.deep-merge($expressions, (
-              'features': ('#{$dimension}-#{$feature}': $value)
+              'features': ('#{$dimension}-#{$featureName}': $value)
             ));
         }
     }
@@ -133,8 +134,8 @@
 
 
 
-@function _parse-conditions($condition, $parameters) {
-    $alias: map.get($parameters, 'feature', 'alias');
+@function _parse-conditions($condition, $featureMap) {
+    $alias: map.get($featureMap, 'alias');
     $condition: str.replace($condition, ' ', '');
     $condition-list: str.split($condition, $alias);
 
@@ -154,13 +155,11 @@
 }
 
 
-@function _parse-feature($condition, $parameters) {
+@function _parse-feature($condition) {
     @each $feature-alias, $feature-params in settings.get-feature-list() {
         @if (str.index($condition, $feature-alias)) {
             $feature-params: map.set($feature-params, 'alias', $feature-alias);
-            @return map.deep-merge($parameters, (
-              'feature': $feature-params
-            ));
+            @return $feature-params;
         }
     }
 
@@ -182,7 +181,7 @@
 
 
 @function _parse-operator($_condition_, $parameters) {
-    $feature-type: map.get($parameters, 'feature', 'type');
+    $feature-type: map.get($parameters, 'type');
     @each $operator in settings.get-operator-list($feature-type) {
         @if (str.index($_condition_, $operator)) {
             @return $operator;
@@ -191,14 +190,14 @@
 }
 
 
-@function _parse-value($condition, $operator, $parameters) {
-    $raw-value: str.trim(str.replace($condition, $operator, ''));
-    $breakpoints: map.get($parameters, 'feature', 'breakpoints');
+@function _parse-value($condition, $operator, $featureMap) {
+    $rawValue: str.unquote(str.trim(str.replace($condition, $operator, '')));
+    $breakpointMap: map.get($featureMap, 'breakpoints');
 
     $value: if(
-        map.has-key($breakpoints, unquote($raw-value)),
-        map.get($breakpoints, unquote($raw-value)),
-        $raw-value
+        map.has-key($breakpointMap, $rawValue),
+        map.get($breakpointMap, $rawValue),
+        $rawValue
     );
 
     @return _to-number($value);

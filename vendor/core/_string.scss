@@ -15,6 +15,10 @@
     @return string.length($__string__);
 }
 
+@function unquote($__string__) {
+    @return string.unquote($__string__);
+}
+
 
 // @function trim
 // @desc trim spaces from start and end of the string
