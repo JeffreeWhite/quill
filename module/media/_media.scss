@@ -9,28 +9,35 @@
 @use "../../vendor/core/list" as lst;
 @use "../../vendor/core/list" as List;
 
-@mixin query($_conditions_...) {
-    $expressions: processing((), 1, 1, $_conditions_...);
-    $expressions: post-processing($expressions);
-    @media #{building($expressions)} {
+
+
+@mixin query($conditions...) {
+    $expression: processing((), 1, 1, $conditions...);
+    $expression: post-processing($expression);
+    @media #{building($expression)} {
         @content;
     }
 }
 
+
+
+
 @function post-processing($expressions) {
+    $expressionList: ();
+
     @each $key, $queryMap in $expressions {
         $resultList: if(map.has-key($queryMap, 'type'),
             list.join((), map.keys(map.get($queryMap, 'type')), 'comma'), ()
         );
 
-        @each $dim, $value in map.get($queryMap, 'features') {
-            $resultList: list.join($resultList, ('(#{$dim}: #{$value})'), 'comma')
+        @each $dimension, $value in map.get($queryMap, 'features') {
+            $resultList: list.join($resultList, ('(#{$dimension}: #{$value})'), 'comma')
         }
 
-        $expressions: map.deep-merge($expressions, ($key: ('chunks': $resultList)));
+        $expressionList: list.append($expressionList, $resultList, 'comma');
     }
 
-    @return $expressions;
+    @return $expressionList;
 }
 
 @function processing($expressions, $expCounter: 1, $condCounter: 1, $_conditions_...) {
@@ -60,6 +67,21 @@
     );
 }
 
+
+@function building($queryList, $queryChunk: ()) {
+    @if ($queryChunk == () and list.length($queryList) > 0) {
+        $chunk: list.nth($queryList, 1);
+    }
+
+    @if (list.length($queryChunk) < 2) {
+        @return if(list.length($queryList) > 1,
+          #{list.nth($queryChunk, 1)} + ' , ' + building(List.slice($queryList)),
+          #{list.nth($queryChunk, 1)}
+        )
+    }
+
+    @return #{list.nth($queryChunk, 1)} + ' and ' + building($queryList, List.slice($queryChunk));
+}
 
 @function parse-expression($_condition_, $expCounter, $condCounter, $expression-map) {
     @if ($_condition_ == null or $_condition_ == ()) {
@@ -95,6 +117,8 @@
 }
 
 
+
+
 @function parse-type($condition) {
     @each $type in settings.get-type-list() {
         @if ($type == $condition) {
@@ -104,6 +128,8 @@
 
     @return null;
 }
+
+
 
 
 @function parse-conditions($condition, $parameters) {
@@ -176,29 +202,6 @@
 
     @return to-number($value);
 }
-
-
-@function building($expressions, $counter: 1, $chunks: ()) {
-    @if ($chunks == ()) {
-        $chunks: map.get($expressions, #{$counter}, 'chunks');
-    }
-
-    @if (list.length($chunks) < 2) {
-        @return if(map.has-key($expressions, #{$counter + 1}, 'chunks'),
-          #{list.nth($chunks, 1)}  + ' , ' + building($expressions, $counter + 1, ()),
-          #{list.nth($chunks, 1)}
-        );
-    }
-
-    @return #{list.nth($chunks, 1)} + ' and ' + building($expressions, $counter, List.slice($chunks));
-
-    //@return if(
-    //	map.has-key($expressions, #{$counter + 1}),
-    //	#{list.nth($expression, 1)} + ' , ' + building(map.get($expressions, #{$counter + 1})),
-    //	#{list.nth($expression, 1)} + ' and ' + building($expressions, $counter, List.slice($expression))
-    //);
-}
-
 
 @function to-number($value) {
     @if meta.type-of($value) == 'number' {
