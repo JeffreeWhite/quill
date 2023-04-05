@@ -12,9 +12,10 @@
 
 
 @mixin query($conditions...) {
-    $expression: processing((), 1, 1, $conditions...);
-    $expression: post-processing($expression);
-    @media #{building($expression)} {
+    $expression: _processing((), 1, 1, $conditions...);
+    $expression: _post-processing($expression);
+    @debug $expression;
+    @media #{_building($expression)} {
         @content;
     }
 }
@@ -22,7 +23,7 @@
 
 
 
-@function post-processing($expressions) {
+@function _post-processing($expressions) {
     $expressionList: ();
 
     @each $key, $queryMap in $expressions {
@@ -40,7 +41,7 @@
     @return $expressionList;
 }
 
-@function processing($expressions, $expCounter: 1, $condCounter: 1, $_conditions_...) {
+@function _processing($expressions, $expCounter: 1, $condCounter: 1, $_conditions_...) {
     $_condition: "";
 
     @if (list.length($_conditions_) < 1) {
@@ -56,34 +57,34 @@
     $_conditions_: lst.slice($_conditions_);
     @return if(
         meta.type-of($_condition) == 'list',
-        processing(map.deep-merge($expressions,
-          processing($expressions, $expCounter, 1, $_condition...)),
+        _processing(map.deep-merge($expressions,
+          _processing($expressions, $expCounter, 1, $_condition...)),
           $expCounter + 1, $condCounter + 1, $_conditions_...
         ),
-        processing(map.deep-merge($expressions,
-          (#{$expCounter}: parse-expression($_condition, $expCounter, $condCounter, $expressions))),
+        _processing(map.deep-merge($expressions,
+          (#{$expCounter}: _parse-expressions($_condition, $expCounter, $condCounter, $expressions))),
           $expCounter, $condCounter + 1, $_conditions_...
         )
     );
 }
 
 
-@function building($queryList, $queryChunk: ()) {
+@function _building($queryList, $queryChunk: ()) {
     @if ($queryChunk == () and list.length($queryList) > 0) {
-        $chunk: list.nth($queryList, 1);
+        $queryChunk: list.nth($queryList, 1);
     }
 
     @if (list.length($queryChunk) < 2) {
         @return if(list.length($queryList) > 1,
-          #{list.nth($queryChunk, 1)} + ' , ' + building(List.slice($queryList)),
+          #{list.nth($queryChunk, 1)} + ' , ' + _building(List.slice($queryList)),
           #{list.nth($queryChunk, 1)}
         )
     }
 
-    @return #{list.nth($queryChunk, 1)} + ' and ' + building($queryList, List.slice($queryChunk));
+    @return #{list.nth($queryChunk, 1)} + ' and ' + _building($queryList, List.slice($queryChunk));
 }
 
-@function parse-expression($_condition_, $expCounter, $condCounter, $expression-map) {
+@function _parse-expressions($_condition_, $expCounter, $condCounter, $expression-map) {
     @if ($_condition_ == null or $_condition_ == ()) {
         @return "";
     }
@@ -91,21 +92,21 @@
     $expressions: ();
     $parameters: ();
 
-    $type: parse-type($_condition_);
+    $type: _parse-type($_condition_);
     @if ($type != null) {
         $expressions: map.deep-merge($expressions, (
           'type': ($type: $type)
         ));
     }
 
-    $parameters: parse-feature($_condition_, $parameters);
+    $parameters: _parse-feature($_condition_, $parameters);
     @if ($parameters != null) {
-        $conditions: parse-conditions($_condition_, $parameters);
+        $conditions: _parse-conditions($_condition_, $parameters);
         @each $context, $condition in $conditions {
             $feature: map.get($parameters, 'feature', 'name');
-            $operator: parse-operator($condition, $parameters);
-            $dimension: get-dimension($operator, $context);
-            $value: parse-value($condition, $operator, $parameters);
+            $operator: _parse-operator($condition, $parameters);
+            $dimension: _get-dimension($operator, $context);
+            $value: _parse-value($condition, $operator, $parameters);
 
             $expressions: map.deep-merge($expressions, (
               'features': ('#{$dimension}-#{$feature}': $value)
@@ -119,7 +120,7 @@
 
 
 
-@function parse-type($condition) {
+@function _parse-type($condition) {
     @each $type in settings.get-type-list() {
         @if ($type == $condition) {
             @return $type;
@@ -132,7 +133,7 @@
 
 
 
-@function parse-conditions($condition, $parameters) {
+@function _parse-conditions($condition, $parameters) {
     $alias: map.get($parameters, 'feature', 'alias');
     $condition: str.replace($condition, ' ', '');
     $condition-list: str.split($condition, $alias);
@@ -153,7 +154,7 @@
 }
 
 
-@function parse-feature($condition, $parameters) {
+@function _parse-feature($condition, $parameters) {
     @each $feature-alias, $feature-params in settings.get-feature-list() {
         @if (str.index($condition, $feature-alias)) {
             $feature-params: map.set($feature-params, 'alias', $feature-alias);
@@ -167,7 +168,7 @@
 }
 
 
-@function get-dimension($operator, $context) {
+@function _get-dimension($operator, $context) {
     $result: '';
 
     @if (list.index(('<=', '<'), $operator)) {
@@ -180,7 +181,7 @@
 }
 
 
-@function parse-operator($_condition_, $parameters) {
+@function _parse-operator($_condition_, $parameters) {
     $feature-type: map.get($parameters, 'feature', 'type');
     @each $operator in settings.get-operator-list($feature-type) {
         @if (str.index($_condition_, $operator)) {
@@ -190,7 +191,7 @@
 }
 
 
-@function parse-value($condition, $operator, $parameters) {
+@function _parse-value($condition, $operator, $parameters) {
     $raw-value: str.trim(str.replace($condition, $operator, ''));
     $breakpoints: map.get($parameters, 'feature', 'breakpoints');
 
@@ -200,10 +201,10 @@
         $raw-value
     );
 
-    @return to-number($value);
+    @return _to-number($value);
 }
 
-@function to-number($value) {
+@function _to-number($value) {
     @if meta.type-of($value) == 'number' {
         @return $value;
     } @else if meta.type-of($value) != 'string' {
@@ -237,7 +238,7 @@
         $character: str.slice($value, $i, $i);
 
         @if not(list.index(map.keys($numbers), $character) or $character == '.') {
-            @return to-length(if($minus, -$result, $result), str.slice($value, $i));
+            @return _to-length(if($minus, -$result, $result), str.slice($value, $i));
         }
 
         @if $character == '.' {
@@ -254,15 +255,8 @@
 }
 
 
-///
-/// Add `$unit` to `$value`
-///
-/// @param {Number} $value - Value to add unit to
-/// @param {String} $unit - String representation of the unit
-///
-/// @return {Number} - `$value` expressed in `$unit`
-///
-@function to-length($value, $unit) {
+
+@function _to-length($value, $unit) {
     $units: (
       'px': 1px,
       'cm': 1cm,
