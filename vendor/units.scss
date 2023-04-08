@@ -1,0 +1,30 @@
+@use "sass:list";
+@use "core/const";
+
+
+$constNameAngle: 'UNITS_ANGLE';
+@include const.set($constNameAngle, ('deg', 'grad', 'rad', 'turn'));
+
+$constNameDuration: 'UNITS_DURATION';
+@include const.set($constNameDuration, ('s', 'ms'));
+
+$constNameResolution: 'UNITS_RESOLUTION';
+@include const.set($constNameResolution, ('dpi', 'dpcm', 'dppx'));
+
+$constNameAbsolute: 'UNITS_ABSOLUTE';
+@include const.set($constNameAbsolute, ('in', 'cm', 'mm', 'pt', 'pc', 'px'));
+
+$constNameViewPort: 'UNITS_VIEWPORT';
+@include const.set($constNameViewPort, ('vw', 'vh', 'vmin', 'vmax'));
+
+$constNameFontRel: 'UNITS_FONT_REL';
+@include const.set($constNameFontRel, ('em', 'ex', 'ch', 'rem'));
+
+$constNameDistance: 'UNITS_DISTANCE';
+@include const.set($constNameDistance,
+    list.join(const.get($constNameViewPort),
+        list.join(const.get($constNameFontRel),
+            const.get($constNameAbsolute)
+        )
+    )
+);
