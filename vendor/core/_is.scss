@@ -44,7 +44,9 @@
     @return if(meta.type-of($value) == "arglist", true, false);
 }
 
-
+@function empty($value) {
+    @return if($value == '' or $value == () or $value == null, true, false);
+}
 
 @function scalar($value) {
     @return if(number($value) or string($value), true, false);

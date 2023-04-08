@@ -18,17 +18,17 @@ $__media_config__: (
         '@w': (
             'name': 'width',
             'type': 'range',
-            'breakpoints': (sm: 300px, md: 568px, lg: 789px, xl: 1200px)
+            'points': (sm: 300px, md: 568px, lg: 789px, xl: 1200px)
         ),
         '@h': (
             'name': 'height',
             'type': 'range',
-            'breakpoints': (sm: 300px, md: 568px, lg: 789px, xl: 1200px)
+            'points': (sm: 300px, md: 568px, lg: 789px, xl: 1200px)
         ),
         '@p': (
             'name': 'pointer',
             'type': 'discrete',
-            'set': ('none', 'coarse', 'fine')
+            'points': ('none': 'none', 'coarse': 'coarse', 'fine': 'fine')
         ),
     ),
 );

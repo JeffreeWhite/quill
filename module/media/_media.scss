@@ -5,6 +5,7 @@
 @use "sass:meta";
 @use "sass:string";
 
+@use "../../vendor/core/is" as is;
 @use "../../vendor/core/string" as str;
 @use "../../vendor/core/string" as String;
 @use "../../vendor/core/list" as lst;
@@ -85,7 +86,7 @@
 }
 
 @function _parse-expressions($_condition_, $expCounter, $condCounter, $expression-map) {
-    @if ($_condition_ == null or $_condition_ == ()) {
+    @if (is.empty($_condition_)) {
         @return "";
     }
 
@@ -98,17 +99,20 @@
         ));
     }
 
-    $feature: _parse-feature($_condition_);
-    @if ($feature != null) {
-        $conditions: _parse-conditions($_condition_, $feature);
+    $featureMap: _parse-feature($_condition_);
+    @if ($featureMap != null) {
+        $featureName: map.get($featureMap, 'name');
+        $featureType: map.get($featureMap, 'type');
+        $featurePoints: map.get($featureMap, 'points');
 
-        @each $context, $condition in $conditions {
+        $conditionMap: _parse-conditions($_condition_, $featureMap);
+        @each $context, $condition in $conditionMap {
+            $operator:  _parse-operator($condition, $featureType);
+            $dimension: _get-dimension($operator, $context, $featureType);
 
-            $operator: _parse-operator($condition, $feature);
-            $dimension: _get-dimension($operator, $context, $feature);
-            $value: _parse-value($condition, $operator, $feature);
+            $value: String.trim(String.replace($condition, $operator, ''));
+            $value: _parse-value($value, $featureType, $featurePoints);
 
-            $featureName: map.get($feature, 'name');
             $expressions: map.deep-merge($expressions, (
               'features': ('#{$dimension}#{$featureName}': $value)
             ));
@@ -117,8 +121,6 @@
 
     @return $expressions;
 }
-
-
 
 
 @function _parse-type($condition) {
@@ -161,10 +163,11 @@
 
 
 @function _parse-feature($condition) {
-    @each $feature-alias, $feature-params in settings.get-feature-list() {
-        @if (str.index($condition, $feature-alias)) {
-            $feature-params: map.set($feature-params, 'alias', $feature-alias);
-            @return $feature-params;
+    @each $featureAlias, $featureMap in settings.get-feature-list() {
+        @if (str.index($condition, $featureAlias)) {
+            @return map.deep-merge($featureMap, (
+                'alias': $featureAlias
+            ));
         }
     }
 
@@ -172,13 +175,14 @@
 }
 
 
-@function _get-dimension($operator, $context, $featureMap) {
+@function _get-dimension($operator, $context, $featureType) {
     $result: '';
 
-    @if (map.get($featureMap, 'type') == 'range') {
+    @if ($featureType == 'range') {
         @if (list.index(('<=', '<'), $operator)) {
             $result: if($context == 'left', 'min-', 'max-');
-        } @else if (list.index(('>=', '>'), $operator)) {
+        }
+        @else if (list.index(('>=', '>'), $operator)) {
             $result: if($context == 'left', 'max-', 'min-');
         }
     }
@@ -187,37 +191,31 @@
 }
 
 
-@function _parse-operator($_condition_, $parameters) {
-    $feature-type: map.get($parameters, 'type');
-    @each $operator in settings.get-operator-list($feature-type) {
-        @if (str.index($_condition_, $operator)) {
+@function _parse-operator($condition, $featureType) {
+    @each $operator in settings.get-operator-list($featureType) {
+        @if (str.index($condition, $operator)) {
             @return $operator;
         }
     }
 }
 
 
-@function _parse-value($condition, $operator, $featureMap) {
-    $rawValue: str.unquote(str.trim(str.replace($condition, $operator, '')));
+@function _parse-value($rawValue, $featureType, $featurePoints) {
+    $value: '';
 
-    @if (map.has-key($featureMap, 'breakpoints')) {
-        $breakpointMap: map.get($featureMap, 'breakpoints');
+    @if not is.empty($featurePoints) {
+        @if ($featureType == 'discrete' and not map.has-key($featurePoints, $rawValue)) {
+            @error "Incorrect value #{$rawValue}";
+        }
 
         $value: if(
-            map.has-key($breakpointMap, $rawValue),
-            map.get($breakpointMap, $rawValue),
+            map.has-key($featurePoints, $rawValue),
+            map.get($featurePoints, $rawValue),
             $rawValue
         );
+    }
 
-        @return _to-number($value);
-    }
-    @else if (map.has-key($featureMap, 'set')) {
-        $setList: map.get($featureMap, 'set');
-        @return if(
-            list.index($setList, $rawValue),
-            $rawValue, ''
-        );
-    }
+    @return if($featureType == 'range', _to-number($value), $value);
 }
 
 @function _to-number($value) {
