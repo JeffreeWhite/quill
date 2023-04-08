@@ -6,6 +6,7 @@
 @use "sass:string";
 
 @use "../../vendor/core/string" as str;
+@use "../../vendor/core/string" as String;
 @use "../../vendor/core/list" as lst;
 @use "../../vendor/core/list" as List;
 
@@ -104,12 +105,12 @@
         @each $context, $condition in $conditions {
 
             $operator: _parse-operator($condition, $feature);
-            $dimension: _get-dimension($operator, $context);
+            $dimension: _get-dimension($operator, $context, $feature);
             $value: _parse-value($condition, $operator, $feature);
 
-            $featureName: map.get($feature, 'feature', 'name');
+            $featureName: map.get($feature, 'name');
             $expressions: map.deep-merge($expressions, (
-              'features': ('#{$dimension}-#{$featureName}': $value)
+              'features': ('#{$dimension}#{$featureName}': $value)
             ));
         }
     }
@@ -134,14 +135,14 @@
 
 
 @function _parse-conditions($condition, $featureMap) {
-    $alias: map.get($featureMap, 'alias');
-    $condition: str.replace($condition, ' ', '');
-    $conditionList: str.split($condition, $alias);
+    $featureType: map.get($featureMap, 'type');
+    $featureAlias: map.get($featureMap, 'alias');
+    $conditionList: String.split($condition, $featureAlias);
 
     $conditionMap: ();
     @for $i from 1 through List.length($conditionList) {
         @if List.nth($conditionList, $i) != '' {
-            @if ($i == 1) {
+            @if ($i == 1 and $featureType != 'discrete') {
                 $conditionMap: map.deep-merge($conditionMap,
                     ('left': List.nth($conditionList, $i))
                 )
@@ -171,13 +172,15 @@
 }
 
 
-@function _get-dimension($operator, $context) {
+@function _get-dimension($operator, $context, $featureMap) {
     $result: '';
 
-    @if (list.index(('<=', '<'), $operator)) {
-        $result: if($context == 'left', 'min', 'max');
-    } @else if (list.index(('>=', '>'), $operator)) {
-        $result: if($context == 'left', 'max', 'min');
+    @if (map.get($featureMap, 'type') == 'range') {
+        @if (list.index(('<=', '<'), $operator)) {
+            $result: if($context == 'left', 'min-', 'max-');
+        } @else if (list.index(('>=', '>'), $operator)) {
+            $result: if($context == 'left', 'max-', 'min-');
+        }
     }
 
     @return $result;
@@ -196,15 +199,25 @@
 
 @function _parse-value($condition, $operator, $featureMap) {
     $rawValue: str.unquote(str.trim(str.replace($condition, $operator, '')));
-    $breakpointMap: map.get($featureMap, 'breakpoints');
 
-    $value: if(
-        map.has-key($breakpointMap, $rawValue),
-        map.get($breakpointMap, $rawValue),
-        $rawValue
-    );
+    @if (map.has-key($featureMap, 'breakpoints')) {
+        $breakpointMap: map.get($featureMap, 'breakpoints');
 
-    @return _to-number($value);
+        $value: if(
+            map.has-key($breakpointMap, $rawValue),
+            map.get($breakpointMap, $rawValue),
+            $rawValue
+        );
+
+        @return _to-number($value);
+    }
+    @else if (map.has-key($featureMap, 'set')) {
+        $setList: map.get($featureMap, 'set');
+        @return if(
+            list.index($setList, $rawValue),
+            $rawValue, ''
+        );
+    }
 }
 
 @function _to-number($value) {
