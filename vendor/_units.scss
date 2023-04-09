@@ -1,0 +1,33 @@
+@use "sass:list";
+@use "sass:map";
+@use "core/const";
+
+
+$constNameAngle: 'UNITS_ANGLE';
+@include const.set($constNameAngle, ('deg': 1deg, 'grad': 1grad, 'rad': 1rad, 'turn': 1turn));
+
+$constNameResolution: 'UNITS_RESOLUTION';
+@include const.set($constNameResolution, ('dpi': 1dpi, 'dpcm': 1dpcm, 'dppx': 1dppx));
+
+$constNameDuration: 'UNITS_DURATION';
+@include const.set($constNameDuration, ('s': 1s, 'ms': 1ms));
+
+$constNameAbsolute: 'UNITS_ABSOLUTE';
+@include const.set($constNameAbsolute, ('in': 1in, 'cm': 1cm, 'mm': 1mm, 'pt': 1pt, 'pc': 1pc, 'px': 1px));
+
+$constNameViewPort: 'UNITS_VIEWPORT';
+@include const.set($constNameViewPort, ('vw': 1vw, 'vh': 1vh, 'vmin': 1vmin, 'vmax': 1vmax));
+
+$constNameRelative: 'UNITS_RELATIVE';
+@include const.set($constNameRelative, ('em': 1em, 'ex': 1ex, 'ch': 1ch, 'rem': 1rem, '%': 1%));
+
+$constNameDistance: 'UNITS_DISTANCE';
+@include const.set($constNameDistance,
+    map.deep-merge(
+        const.get($constNameAbsolute),
+        map.deep-merge(
+            const.get($constNameRelative),
+            const.get($constNameViewPort)
+        )
+    )
+);
