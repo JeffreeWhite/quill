@@ -1,4 +1,6 @@
 @use 'sass:map';
+@use '../../vendor/core/const';
+@use '../../vendor/units';
 @use '../../vendor/core/string' as String;
 
 $__media_config__: (
@@ -18,12 +20,19 @@ $__media_config__: (
         '@w': (
             'name': 'width',
             'type': 'range',
+            'units': units.$constNameDistance,
             'points': (sm: 300px, md: 568px, lg: 789px, xl: 1200px)
         ),
         '@h': (
             'name': 'height',
             'type': 'range',
+            'units': units.$constNameDistance,
             'points': (sm: 300px, md: 568px, lg: 789px, xl: 1200px)
+        ),
+        '@r': (
+            'name': 'resolution',
+            'type': 'range',
+            'units': units.$constNameResolution
         ),
         '@p': (
             'name': 'pointer',
@@ -55,3 +64,5 @@ $__media_config__: (
         @return map.get($__media_config__, 'operators', $type);
     }
 }
+
+@debug const.get(units.$constNameDistance);
