@@ -1,5 +1,10 @@
 @use "sass:list";
 
+
+@function index($list, $value) {
+    @return list.index($list, $value);
+}
+
 @function length($list) {
     @return list.length($list);
 }
