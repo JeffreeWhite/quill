@@ -1,0 +1,51 @@
+@use "sass:map";
+@use "sass:math";
+@use "sass:meta";
+@use "is";
+@use "const";
+@use "string" as String;
+@use "list" as List;
+@use "../chars";
+@use "../units";
+
+@function number($value, $saveUnits: false, $unitType: units.$constNameDistance) {
+	@if (meta.type-of($value) == 'number') {
+		@return $value;
+	}
+
+	@if not (meta.type-of($value) == 'string') {
+		@error "Incorrect value type.";
+	}
+
+	$result: 0;
+	$valueLength: String.length($value);
+	$numbersMap: const.get(chars.$constNameNumber);
+
+	@for $i from 1 through $valueLength {
+		$character: String.slice($value, $i, $i);
+		@if (map.has-key($numbersMap, $character)) {
+			$result: $result * 10 + map.get($numbersMap, $character);
+		}
+	}
+
+	$pointIndex: String.index($value, '.');
+	@if not is.empty($pointIndex) {
+		$result: math.div($result,
+			math.pow(10, $valueLength - $pointIndex)
+		);
+	}
+
+	@if ($saveUnits) {
+		@if not (List.index(units.$typeList, $unitType)) {
+			@error "";
+		}
+
+		@each $unitName, $unitNumber in const.get($unitType) {
+			@if (String.index($value, $unitName)) {
+				$result: $result * $unitNumber;
+			}
+		}
+	}
+
+	@return $result;
+}
