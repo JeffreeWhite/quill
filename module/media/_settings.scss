@@ -16,6 +16,13 @@ $__media_config__: (
         'range': ('<=', '<', '>=', '>', '==', '='),
         'discrete': (':')
     ),
+    'units': (
+        'def': (
+            units.$constNameDistance: 'px',
+            units.$constNameAngle: 'deg',
+            units.$constNameResolution: 'dpi',
+        ),
+    ),
     'features': (
         '@w': (
             'name': 'width',
