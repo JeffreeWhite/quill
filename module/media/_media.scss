@@ -17,7 +17,6 @@
 
 @mixin query($conditions...) {
     $expression: _processing((), 1, 1, $conditions...);
-    @debug $expression;
     $expression: _post-processing($expression);
     @media #{_building($expression)} {
         @content;
@@ -127,8 +126,8 @@
 @function _parse-value($condition, $operator, $dimension, $featureMap) {
     $value: String.trim(String.replace($condition, $operator, ''));
     $value: _find-value($value, $featureMap);
-    $unit: _find-units($value, $featureMap);
-    $value: _calc-interval($value, $unit, $operator, $dimension);
+    $units: _find-units($value, $featureMap);
+    $value: _calc-interval($value, $units, $operator, $dimension);
 
     @return $value;
 }
