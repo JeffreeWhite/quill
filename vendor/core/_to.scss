@@ -17,35 +17,33 @@
 		@error "Incorrect value type.";
 	}
 
-	$result: 0;
-	$valueLength: String.length($value);
-	$numbersMap: const.get(chars.$constNameNumber);
+	@return _to-number(String.trim($value), $saveUnits, const.get($unitType), 0, 0);
+}
 
-	@for $i from 1 through $valueLength {
-		$character: String.slice($value, $i, $i);
-		@if (map.has-key($numbersMap, $character)) {
-			$result: $result * 10 + map.get($numbersMap, $character);
-		}
-	}
 
-	$pointIndex: String.index($value, '.');
-	@if not is.empty($pointIndex) {
-		$result: math.div($result,
-			math.pow(10, $valueLength - $pointIndex)
+@function _to-number($value, $saveUnits: false, $unitMap: const.get(units.$constNameDistance), $result: 0, $isFloat: 0) {
+	$numbMap: const.get(chars.$constNameNumber);
+
+	$character: String.slice($value, 1, 1);
+	@if (map.has-key($numbMap, $character)) {
+		$result: if($isFloat == 0,
+			$result * 10 + map.get($numbMap, $character),
+			$result + math.div(map.get($numbMap, $character), math.pow(10, $isFloat))
 		);
+		$isFloat: if($isFloat != 0, $isFloat + 1, $isFloat);
 	}
 
-	@if ($saveUnits) {
-		@if not (List.index(units.$typeList, $unitType)) {
-			@error "";
-		}
-
-		@each $unitName, $unitNumber in const.get($unitType) {
-			@if (String.index($value, $unitName)) {
-				$result: $result * $unitNumber;
-			}
-		}
+	@else if $character == '.' {
+		$isFloat: $isFloat + 1;
 	}
 
-	@return $result;
+	@else if ($saveUnits and map.has-key($unitMap, $value)) {
+		$result: $result * map.get($unitMap, $value);
+		$value: '';
+	}
+
+	@return if(String.length($value) > 0,
+		_to-number(String.slice($value, 2), $saveUnits, $unitMap, $result, $isFloat),
+		$result
+	);
 }
