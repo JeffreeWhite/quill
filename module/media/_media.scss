@@ -53,7 +53,6 @@
     }
 
     $_condition: List.nth($_conditions_, 1);
-    @debug $_condition;
 
     @if ($_condition == null or $_condition == () or $_condition == '') {
         @return $expressions;
