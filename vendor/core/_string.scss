@@ -110,7 +110,7 @@
 // @param {String} $__replace__
 // @param {String} $__mask__
 // @return {String}
-@function replace($__string__, $__search__, $__replace__, $__mask__: "all") {
+@function replace($__string__, $__search__, $__replace__: '', $__mask__: "all") {
     $__search-length: string.length($__search__);
     $__search-index: string.index($__string__, $__search__);
 
