@@ -4,11 +4,9 @@
 @use "sass:list";
 @use "sass:math";
 @use "sass:meta";
-@use "sass:string";
 
 @use "../../../vendor/core/is" as is;
-@use "../../../vendor/core/string" as str;
-@use "../../../vendor/core/string" as String;
+@use "../../../vendor/core/string";
 @use "../../../vendor/core/list" as lst;
 @use "../../../vendor/core/list" as List;
 @use "../../../vendor/core/to";
@@ -31,9 +29,11 @@
     $featureMap: _parse-feature($_condition_);
     @if ($featureMap != null) {
         @each $context, $condition in _parse-conditions($_condition_, $featureMap) {
+            $operator:  _parse-operator($condition, map.get($featureMap, 'type'));
+            $condition: string.trim(string.replace($condition, $operator));
             $expressions: map.deep-merge($expressions, (
                 'features': if(map.get($featureMap, 'type') == 'range',
-                    _parse-range($condition, $context, $featureMap),
+                    _parse-range($condition, $operator, $context, $featureMap),
                     _parse-discrete($condition, $featureMap)
                 )
             ));
@@ -45,20 +45,14 @@
 
 
 @function _parse-discrete($condition, $featureMap) {
-    $operator:  _parse-operator($condition, 'discrete');
-    $condition: String.trim(String.replace($condition, $operator));
-
     $value: _parse-discrete-value($condition, $featureMap);
 
     @return ('#{map.get($featureMap, 'name')}': $value);
 }
 
 
-@function _parse-range($condition, $context, $featureMap) {
-    $operator:  _parse-operator($condition, 'range');
+@function _parse-range($condition, $operator, $context, $featureMap) {
     $dimension: _calc-dimension($operator, $context, 'range');
-    $condition: String.trim(String.replace($condition, $operator));
-
     $value: _parse-range-value($condition, $operator, $dimension, $featureMap);
 
     @return ('#{$dimension}#{map.get($featureMap, 'name')}': $value);
@@ -117,7 +111,7 @@
 @function _parse-conditions($condition, $featureMap) {
     $featureType: map.get($featureMap, 'type');
     $featureAlias: map.get($featureMap, 'alias');
-    $conditionList: String.split($condition, $featureAlias);
+    $conditionList: string.split($condition, $featureAlias);
 
     $conditionMap: ();
     @for $i from 1 through List.length($conditionList) {
@@ -142,7 +136,7 @@
 
 @function _parse-feature($condition) {
     @each $featureAlias, $featureMap in settings.get-feature-list() {
-        @if (str.index($condition, $featureAlias)) {
+        @if (string.index($condition, $featureAlias)) {
             @return map.deep-merge($featureMap, (
                 'alias': $featureAlias
             ));
@@ -173,7 +167,7 @@
 
 @function _parse-operator($condition, $featureType) {
     @each $operator in settings.get-operator-list($featureType) {
-        @if (str.index($condition, $operator)) {
+        @if (string.index($condition, $operator)) {
             @return $operator;
         }
     }
@@ -200,7 +194,7 @@
 
     $interval: map.get($unit-intervals, $unit);
 
-    @if (String.index($operator, '=') == 2) {
+    @if (string.index($operator, '=') == 2) {
         $value: if($dimension == 'min-', $value + $interval, $value - $interval);
     }
 
