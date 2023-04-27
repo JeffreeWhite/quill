@@ -2,17 +2,17 @@
 @use 'sass:map';
 @use '../../../vendor/core/list';
 
-@function construction($querylist, $queryChunk: ()) {
-    @if ($queryChunk == () and list.length($querylist) > 0) {
-        $queryChunk: list.nth($querylist, 1);
+@function construction($queryList, $queryChunk: ()) {
+    @if ($queryChunk == () and list.length($queryList) > 0) {
+        $queryChunk: list.nth($queryList, 1);
     }
 
     @if (list.length($queryChunk) < 2) {
-        @return if(list.length($querylist) > 1,
-            #{list.nth($queryChunk, 1)} + ' , ' + construction(list.slice($querylist)),
+        @return if(list.length($queryList) > 1,
+            #{list.nth($queryChunk, 1)} + ' , ' + construction(list.slice($queryList)),
             #{list.nth($queryChunk, 1)}
         )
     }
 
-    @return #{list.nth($queryChunk, 1)} + ' and ' + construction($querylist, list.slice($queryChunk));
+    @return #{list.nth($queryChunk, 1)} + ' and ' + construction($queryList, list.slice($queryChunk));
 }
