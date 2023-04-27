@@ -1,0 +1,29 @@
+@use 'sass:meta';
+@use 'sass:map';
+@use '../parser';
+@use '../../../vendor/core/list';
+
+@function processing($expressions, $expCounter: 1, $condCounter: 1, $_conditions_...) {
+
+	@if (list.length($_conditions_) < 1) {
+		@return $expressions;
+	}
+
+	$_condition: list.nth($_conditions_, 1);
+	@if ($_condition == null or $_condition == () or $_condition == '') {
+		@return $expressions;
+	}
+
+	$_conditions_: list.slice($_conditions_);
+	@return if(
+		meta.type-of($_condition) == 'list',
+		processing(map.deep-merge($expressions,
+			processing($expressions, $expCounter, 1, $_condition...)),
+			$expCounter + 1, $condCounter + 1, $_conditions_...
+		),
+		processing(map.deep-merge($expressions,
+			(#{$expCounter}: parser.expressions($_condition, $expCounter, $condCounter))),
+			$expCounter, $condCounter + 1, $_conditions_...
+		)
+	);
+}

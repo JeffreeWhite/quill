@@ -16,13 +16,6 @@ $__media_config__: (
         'range': ('<=', '<', '>=', '>', '==', '='),
         'discrete': (':')
     ),
-    'units': (
-        'def': (
-            units.$constNameDistance: 'px',
-            units.$constNameAngle: 'deg',
-            units.$constNameResolution: 'dpi',
-        ),
-    ),
     'features': (
         '@w': (
             'name': 'width',
@@ -72,4 +65,4 @@ $__media_config__: (
     }
 }
 
-@debug const.get(units.$constNameDistance);
+//@debug const.get(units.$constNameDistance);

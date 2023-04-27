@@ -1,0 +1,18 @@
+@use 'sass:meta';
+@use 'sass:map';
+@use '../../../vendor/core/list';
+
+@function building($querylist, $queryChunk: ()) {
+    @if ($queryChunk == () and list.length($querylist) > 0) {
+        $queryChunk: list.nth($querylist, 1);
+    }
+
+    @if (list.length($queryChunk) < 2) {
+        @return if(list.length($querylist) > 1,
+            #{list.nth($queryChunk, 1)} + ' , ' + building(list.slice($querylist)),
+            #{list.nth($queryChunk, 1)}
+        )
+    }
+
+    @return #{list.nth($queryChunk, 1)} + ' and ' + building($querylist, list.slice($queryChunk));
+}

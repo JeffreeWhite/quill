@@ -1,0 +1,216 @@
+@use 'sass:map';
+
+@use "../settings";
+@use "sass:list";
+@use "sass:math";
+@use "sass:meta";
+@use "sass:string";
+
+@use "../../../vendor/core/is" as is;
+@use "../../../vendor/core/string" as str;
+@use "../../../vendor/core/string" as String;
+@use "../../../vendor/core/list" as lst;
+@use "../../../vendor/core/list" as List;
+@use "../../../vendor/core/to";
+@use "../../../vendor/core/const";
+
+@function expressions($_condition_, $expCounter, $condCounter) {
+    @if (is.empty($_condition_)) {
+        @return "";
+    }
+
+    $expressions: ();
+
+    $type: _parse-type($_condition_);
+    @if ($type != null) {
+        @return map.deep-merge($expressions, (
+            'type': ($type: $type)
+        ));
+    }
+
+    $featureMap: _parse-feature($_condition_);
+    @if ($featureMap != null) {
+        @each $context, $condition in _parse-conditions($_condition_, $featureMap) {
+            $expressions: map.deep-merge($expressions, (
+                'features': if(map.get($featureMap, 'type') == 'range',
+                    _parse-range($condition, $context, $featureMap),
+                    _parse-discrete($condition, $featureMap)
+                )
+            ));
+        }
+    }
+
+    @return $expressions;
+}
+
+
+@function _parse-discrete($condition, $featureMap) {
+    $operator:  _parse-operator($condition, 'discrete');
+    $condition: String.trim(String.replace($condition, $operator));
+
+    $value: _parse-discrete-value($condition, $featureMap);
+
+    @return ('#{map.get($featureMap, 'name')}': $value);
+}
+
+
+@function _parse-range($condition, $context, $featureMap) {
+    $operator:  _parse-operator($condition, 'range');
+    $dimension: _calc-dimension($operator, $context, 'range');
+    $condition: String.trim(String.replace($condition, $operator));
+
+    $value: _parse-range-value($condition, $operator, $dimension, $featureMap);
+
+    @return ('#{$dimension}#{map.get($featureMap, 'name')}': $value);
+}
+
+@function _parse-discrete-value($value, $featureMap) {
+    $featurePoints: map.get($featureMap, 'points');
+
+    @if not (map.has-key($featurePoints, $value)) {
+        @error 'Incorect discrete value';
+    }
+
+    @return map.get($featurePoints, $value);
+}
+
+
+@function _parse-range-value($value, $operator, $dimension, $featureMap) {
+    $value: _find-value($value, $featureMap);
+    $units: _find-units($value, $featureMap);
+    $value: _calc-interval($value, $units, $operator, $dimension);
+
+    @return $value;
+}
+
+@function _find-units($stringValue, $featureMap) {
+    $featureUnits: const.get(map.get($featureMap, 'units'));
+
+    @if (math.is-unitless($stringValue)) {
+        @error "is unitless";
+    }
+
+    $unit: math.unit($stringValue);
+
+    @if not (map.has-key($featureUnits, $unit)) {
+        @error "not a unit";
+    }
+
+    @return $unit;
+}
+
+
+
+@function _parse-type($condition) {
+    @each $type in settings.get-type-list() {
+        @if ($type == $condition) {
+            @return $type;
+        }
+    }
+
+    @return null;
+}
+
+
+
+
+@function _parse-conditions($condition, $featureMap) {
+    $featureType: map.get($featureMap, 'type');
+    $featureAlias: map.get($featureMap, 'alias');
+    $conditionList: String.split($condition, $featureAlias);
+
+    $conditionMap: ();
+    @for $i from 1 through List.length($conditionList) {
+        @if List.nth($conditionList, $i) != '' {
+            @if ($i == 1 and $featureType != 'discrete') {
+                $conditionMap: map.deep-merge($conditionMap,
+                    ('left': List.nth($conditionList, $i))
+                )
+            }
+
+            @if ($i == 2) {
+                $conditionMap: map.deep-merge($conditionMap,
+                    ('right': List.nth($conditionList, $i))
+                )
+            }
+        }
+    }
+
+    @return $conditionMap;
+}
+
+
+@function _parse-feature($condition) {
+    @each $featureAlias, $featureMap in settings.get-feature-list() {
+        @if (str.index($condition, $featureAlias)) {
+            @return map.deep-merge($featureMap, (
+                'alias': $featureAlias
+            ));
+        }
+    }
+
+    @return null;
+}
+
+
+@function _calc-dimension($operator, $context, $featureType) {
+    $result: '';
+
+    @if ($featureType == 'discrete') {
+        @return $result;
+    }
+
+    @if (list.index(('<=', '<'), $operator)) {
+        $result: if($context == 'left', 'min-', 'max-');
+    }
+    @else if (list.index(('>=', '>'), $operator)) {
+        $result: if($context == 'left', 'max-', 'min-');
+    }
+
+    @return $result;
+}
+
+
+@function _parse-operator($condition, $featureType) {
+    @each $operator in settings.get-operator-list($featureType) {
+        @if (str.index($condition, $operator)) {
+            @return $operator;
+        }
+    }
+}
+
+
+@function _find-value($value, $featureMap) {
+    @if is.empty($value) {
+        @error "";
+    }
+
+    $featureUnits: map.get($featureMap, 'units');
+    $featurePoints: map.get($featureMap, 'points');
+    @return if(not is.empty($featurePoints) and map.has-key($featurePoints, $value),
+        to.number(map.get($featurePoints, $value), true, $featureUnits),
+        to.number($value, true, $featureUnits)
+    );
+}
+
+@function _calc-interval($value, $unit, $operator, $dimension) {
+    @if not (map.has-key($unit-intervals, $unit)) or (is.empty($dimension)) {
+        @return $value;
+    }
+
+    $interval: map.get($unit-intervals, $unit);
+
+    @if (String.index($operator, '=') == 2) {
+        $value: if($dimension == 'min-', $value + $interval, $value - $interval);
+    }
+
+    @return $value;
+}
+
+
+$unit-intervals: (
+    'px': 1,
+    'em': 0.01,
+    'rem': 0.1,
+    '': 0,
+) !default;

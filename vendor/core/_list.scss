@@ -13,6 +13,14 @@
     @return list.nth($list, $value);
 }
 
+@function join($list1, $list2, $separator: auto, $bracketed: auto) {
+    @return list.join($list1, $list2, $separator, $bracketed);
+}
+
+@function append($list, $val, $separator: auto) {
+    @return list.append($list, $val, $separator);
+}
+
 /**
  * Extract a slice of the array
  *
