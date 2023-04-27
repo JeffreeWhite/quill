@@ -22,7 +22,7 @@
 			$expCounter + 1, $condCounter + 1, $_conditions_...
 		),
 		processing(map.deep-merge($expressions,
-			(#{$expCounter}: parser.expressions($_condition, $expCounter, $condCounter))),
+			(#{$expCounter}: parser.parse($_condition))),
 			$expCounter, $condCounter + 1, $_conditions_...
 		)
 	);
