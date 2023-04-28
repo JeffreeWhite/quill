@@ -1,7 +1,6 @@
 @use 'sass:map';
 @use '../../vendor/core/const';
 @use '../../vendor/units';
-@use '../../vendor/core/string' as String;
 
 $__media_config__: (
     'types':     ('all', 'screen', 'print', 'speech'),
@@ -43,6 +42,7 @@ $__media_config__: (
 
 //
 // @return {List}
+//
 @function get-type-list() {
     @return map.get($__media_config__, 'types');
 }

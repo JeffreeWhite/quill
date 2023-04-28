@@ -8,42 +8,33 @@
 @use '../../../vendor/core/const';
 @use '../../../vendor/core/string';
 
-@function parse($condition, $operator, $context, $featureMap) {
-	$dimension: _calc-dimension($operator, $context, 'range');
-	$value: _parse-range-value($condition, $operator, $dimension, $featureMap);
-
-	@return ('#{$dimension}#{map.get($featureMap, 'name')}': $value);
-}
-
-@function _parse-range-value($value, $operator, $dimension, $featureMap) {
+//
+// @param {String} $value
+// @param {String} $operator
+// @param {String} $context
+// @param {Map} $featureMap
+//
+// @return {Map}
+//
+@function parse($value, $operator, $context, $featureMap) {
+	$dimension: _calc-dimension($operator, $context);
 	$value: _find-value($value, $featureMap);
 	$units: _find-units($value, $featureMap);
 	$value: _calc-interval($value, $units, $operator, $dimension);
 
-	@return $value;
+	@return ('#{$dimension}#{map.get($featureMap, 'name')}': $value);
 }
 
-@function _find-units($stringValue, $featureMap) {
-	$featureUnits: const.get(map.get($featureMap, 'units'));
 
-	@if (math.is-unitless($stringValue)) {
-		@error "is unitless";
-	}
-
-	$unit: math.unit($stringValue);
-
-	@if not (map.has-key($featureUnits, $unit)) {
-		@error "not a unit";
-	}
-
-	@return $unit;
-}
-@function _calc-dimension($operator, $context, $featureType) {
+//
+// @param {String} $operator
+// @param {String} $context
+// @param {String} $featureType
+//
+// @return {String|Null}
+//
+@function _calc-dimension($operator, $context) {
 	$result: '';
-
-	@if ($featureType == 'discrete') {
-		@return $result;
-	}
 
 	@if (list.index(('<=', '<'), $operator)) {
 		$result: if($context == 'left', 'min-', 'max-');
@@ -55,6 +46,13 @@
 	@return $result;
 }
 
+
+//
+// @param {String} $value
+// @param {Map} $featureMap
+//
+// @return {Number}
+//
 @function _find-value($value, $featureMap) {
 	@if is.empty($value) {
 		@error "";
@@ -68,6 +66,38 @@
 	);
 }
 
+
+//
+// @param {String} $value
+// @param {Map} $featureMap
+//
+// @return {String}
+//
+@function _find-units($value, $featureMap) {
+	$featureUnits: const.get(map.get($featureMap, 'units'));
+
+	@if (math.is-unitless($value)) {
+		@error "is unitless";
+	}
+
+	$unit: math.unit($value);
+
+	@if not (map.has-key($featureUnits, $unit)) {
+		@error "not a unit";
+	}
+
+	@return $unit;
+}
+
+
+//
+// @param {Number} $value
+// @param {String} $unit
+// @param {String} $operator
+// @param {String} $dimension
+//
+// @return {Number}
+//
 @function _calc-interval($value, $unit, $operator, $dimension) {
 	@if not (map.has-key(settings.get-interval-map(), $unit)) or (is.empty($dimension)) {
 		@return $value;

@@ -1,35 +1,40 @@
+///
+/// quill media module public configuration
+/// @author Mihnevich Igor
+///
+
 @use 'processor';
 
-//
-// @params {Arglist} $conditions
-//
-// @example @include media.query('@w < 1000px')
-// @return {String} @media (max-width: 1000px)
-//
-// @example @include media.query('@w <= 1000px')
-// @return {String} @media (max-width: 999px)
-//
-// @example @include media.query('100px < @w')
-// @return {String} @media (min-width: 100px)
-//
-// @example @include media.query('100px <= @w')
-// @return {String} @media (min-width: 101px)
-//
-// @example @include media.query('md < @w')
-// @return {String} @media (min-width: 768px)
-//
-// @example @include media.query('100px < @w' '@w < 1000px')
-// @return {String} @media (min-width: 100px) and (max-width: 1000px)
-//
-// @example @include media.query('100px < @w < 1000px')
-// @return {String} @media (min-width: 100px) and (max-width: 1000px)
-//
-// @example @include media.query('100px <= @w < 1000px')
-// @return {String} @media (min-width: 101px) and (max-width: 1000px)
-//
-// @example @include media.query(['@w < 1000px'] ['@w < 1120px'])
-// @return {String} @media (max-width: 1000px), (max-width: 1120px)
-//
+///
+/// @params {Arglist} $conditions
+///
+/// @example @include media.query('@w < 1000px')
+/// @return {String} @media (max-width: 1000px)
+///
+/// @example @include media.query('@w <= 1000px')
+/// @return {String} @media (max-width: 999px)
+///
+/// @example @include media.query('100px < @w')
+/// @return {String} @media (min-width: 100px)
+///
+/// @example @include media.query('100px <= @w')
+/// @return {String} @media (min-width: 101px)
+///
+/// @example @include media.query('md < @w')
+/// @return {String} @media (min-width: 768px)
+///
+/// @example @include media.query('100px < @w' '@w < 1000px')
+/// @return {String} @media (min-width: 100px) and (max-width: 1000px)
+///
+/// @example @include media.query('100px < @w < 1000px')
+/// @return {String} @media (min-width: 100px) and (max-width: 1000px)
+///
+/// @example @include media.query('100px <= @w < 1000px')
+/// @return {String} @media (min-width: 101px) and (max-width: 1000px)
+///
+/// @example @include media.query(['@w < 1000px'] ['@w < 1120px'])
+/// @return {String} @media (max-width: 1000px), (max-width: 1120px)
+///
 @mixin query($conditions...) {
     $expressions: processor.processing((), 1, 1, $conditions...);
     $expressions: processor.post-processing($expressions);
