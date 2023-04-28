@@ -4,19 +4,10 @@
 @use '../../vendor/core/string' as String;
 
 $__media_config__: (
-    'orientation': (
-        'def': 'both',
-        'list': ('left', 'right', 'both')
-    ),
-    'types': (
-        'def': 'all',
-        'list': ('all', 'screen', 'print', 'speech')
-    ),
-    'operators': (
-        'range': ('<=', '<', '>=', '>', '==', '='),
-        'discrete': (':')
-    ),
-    'features': (
+    'types':     ('all', 'screen', 'print', 'speech'),
+    'intervals': ('px': 1, 'em': 0.01, 'rem': 0.1, '': 0),
+    'operators': ('range': ('<=', '<', '>=', '>', '==', '='), 'discrete': (':')),
+    'features' : (
         '@w': (
             'name': 'width',
             'type': 'range',
@@ -39,30 +30,33 @@ $__media_config__: (
             'type': 'discrete',
             'points': ('none': 'none', 'coarse': 'coarse', 'fine': 'fine')
         ),
-    ),
+    )
 );
 
-@function get() {
-    @return $__media_config__;
+
+//
+// @return {Map}
+//
+@function get-interval-map() {
+    @return map.get($__media_config__, 'intervals');
 }
 
-@function get-type-default() {
-    @return map.get($__media_config__, 'types', 'def');
-}
-
+//
+// @return {List}
 @function get-type-list() {
-    @return map.get($__media_config__, 'types', 'list');
+    @return map.get($__media_config__, 'types');
 }
 
-@function get-feature-list() {
+//
+// @return {List}
+//
+@function get-operator-list($type) {
+    @return map.get($__media_config__, 'operators', $type);
+}
+
+//
+// @return {Map}
+//
+@function get-feature-map() {
     @return map.get($__media_config__, 'features');
 }
-
-@function get-operator-list($type) {
-    $type: String.trim($type);
-    @if (map.has-key($__media_config__, 'operators', $type)) {
-        @return map.get($__media_config__, 'operators', $type);
-    }
-}
-
-//@debug const.get(units.$constNameDistance);
