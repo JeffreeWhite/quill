@@ -1,18 +1,17 @@
 @use 'sass:map';
 
-@function parse($condition, $featureMap) {
-	$value: _parse-discrete-value($condition, $featureMap);
-
-	@return ('#{map.get($featureMap, 'name')}': $value);
-}
-
-
-@function _parse-discrete-value($value, $featureMap) {
+//
+// @param {String} $condition
+// @param {Map} $featureMap
+//
+// @return {Map}
+//
+@function parse($value, $featureMap) {
 	$featurePoints: map.get($featureMap, 'points');
 
 	@if not (map.has-key($featurePoints, $value)) {
 		@error 'Incorect discrete value';
 	}
 
-	@return map.get($featurePoints, $value);
+	@return ('#{map.get($featureMap, 'name')}': map.get($featurePoints, $value));
 }
