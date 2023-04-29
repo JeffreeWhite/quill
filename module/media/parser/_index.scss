@@ -12,6 +12,7 @@
 @use "../../../vendor/core/to";
 @use "../../../vendor/core/const";
 
+@use 'device';
 @use 'range';
 @use 'discrete';
 
@@ -22,10 +23,10 @@
 
     $expressions: ();
 
-    $type: _parse-type($_condition_);
-    @if ($type != null) {
+    $device: device.parse($_condition_);
+    @if ($device != null) {
         @return map.deep-merge($expressions, (
-            'type': ($type: $type)
+            'device': ($device: $device)
         ));
     }
 
@@ -45,19 +46,6 @@
 
     @return $expressions;
 }
-
-
-
-@function _parse-type($condition) {
-    @each $type in settings.get-type-list() {
-        @if ($type == $condition) {
-            @return $type;
-        }
-    }
-
-    @return null;
-}
-
 
 
 

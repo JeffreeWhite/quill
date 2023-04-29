@@ -1,29 +1,38 @@
 @use 'sass:meta';
 @use 'sass:map';
 @use '../parser';
+@use '../../../vendor/core/is';
 @use '../../../vendor/core/list';
 
-@function processing($expressions, $expCounter: 1, $condCounter: 1, $_conditions_...) {
 
-	@if (list.length($_conditions_) < 1) {
+///
+/// @param {String} $expressions
+/// @param {Number} $expCounter
+/// @param {Number} $condCounter
+/// @param {Arglist} $conditions
+///
+/// @return {Map}
+///
+@function processing($expressions, $expCounter: 1, $condCounter: 1, $conditions...) {
+	@if (list.length($conditions) < 1) {
 		@return $expressions;
 	}
 
-	$_condition: list.nth($_conditions_, 1);
-	@if ($_condition == null or $_condition == () or $_condition == '') {
+	$condition: list.nth($conditions, 1);
+
+	@if (is.empty($condition)) {
 		@return $expressions;
 	}
 
-	$_conditions_: list.slice($_conditions_);
-	@return if(
-		meta.type-of($_condition) == 'list',
+	$conditions: list.slice($conditions);
+	@return if(meta.type-of($condition) == 'list',
 		processing(map.deep-merge($expressions,
-			processing($expressions, $expCounter, 1, $_condition...)),
-			$expCounter + 1, $condCounter + 1, $_conditions_...
+			processing($expressions, $expCounter, 1, $condition...)),
+			$expCounter + 1, $condCounter + 1, $conditions...
 		),
 		processing(map.deep-merge($expressions,
-			(#{$expCounter}: parser.parse($_condition))),
-			$expCounter, $condCounter + 1, $_conditions_...
+			(#{$expCounter}: parser.parse($condition))),
+			$expCounter, $condCounter + 1, $conditions...
 		)
 	);
 }

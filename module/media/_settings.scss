@@ -3,7 +3,7 @@
 @use '../../vendor/units';
 
 $__media_config__: (
-    'types':     ('all', 'screen', 'print', 'speech'),
+    'devices':   ('all', 'screen', 'print', 'speech'),
     'intervals': ('px': 1, 'em': 0.01, 'rem': 0.1, '': 0),
     'operators': ('range': ('<=', '<', '>=', '>', '==', '='), 'discrete': (':')),
     'features' : (
@@ -33,30 +33,30 @@ $__media_config__: (
 );
 
 
-//
-// @return {Map}
-//
+///
+/// @return {Map}
+///
 @function get-interval-map() {
     @return map.get($__media_config__, 'intervals');
 }
 
-//
-// @return {List}
-//
-@function get-type-list() {
-    @return map.get($__media_config__, 'types');
+///
+/// @return {List}
+///
+@function get-device-list() {
+    @return map.get($__media_config__, 'devices');
 }
 
-//
-// @return {List}
-//
+///
+/// @return {List}
+///
 @function get-operator-list($type) {
     @return map.get($__media_config__, 'operators', $type);
 }
 
-//
-// @return {Map}
-//
+///
+/// @return {Map}
+///
 @function get-feature-map() {
     @return map.get($__media_config__, 'features');
 }

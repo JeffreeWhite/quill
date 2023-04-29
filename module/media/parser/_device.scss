@@ -1,0 +1,15 @@
+@use '../settings';
+
+///
+/// @param {String} $condition
+/// @return {String|Null}
+///
+@function parse($condition) {
+    @each $device in settings.get-device-list() {
+        @if ($device == $condition) {
+            @return $device;
+        }
+    }
+
+    @return null;
+}

@@ -3,73 +3,109 @@
 @use "sass:list";
 @use "sass:meta";
 
-// @alias string.quote
-// @param {String} $__string__
-// @return {String}
+
+///
+/// @alias string.quote
+/// @param {String} $__string__
+///
+/// @return {String}
+///
 @function quote($__string__) {
     @return string.quote($__string__);
 }
 
-// @alias string.unquote
-// @param {String} $__string__
-// @return {String}
+
+///
+/// @alias string.unquote
+/// @param {String} $__string__
+///
+/// @return {String}
+///
 @function unquote($__string__) {
     @return string.unquote($__string__);
 }
 
-// @alias string.to-upper-case
-// @param {String} $__string__
-// @return {String}
+
+///
+/// @alias string.to-upper-case
+/// @param {String} $__string__
+///
+/// @return {String}
+///
 @function upper($__string__) {
     @return string.to-upper-case($__string__);
 }
 
-// @alias string.to-lower-case
-// @param {String} $__string__
-// @return {String}
+
+///
+/// @alias string.to-lower-case
+/// @param {String} $__string__
+///
+/// @return {String}
+///
 @function lower($__string__) {
     @return string.to-lower-case($__string__);
 }
 
-// @alias string.index
-// @param {String} $__string__
-// @param {String} $__substring__
-// @return {String}
+
+///
+/// @alias string.index
+/// @param {String} $__string__
+/// @param {String} $__substring__
+///
+/// @return {String}
+///
 @function index($__string__, $__substring__) {
     @return string.index($__string__, $__substring__);
 }
 
-// @alias string.slice
-// @param {String} $__string__
-// @param {Number} $__start-at__
-// @param {Number} $__end-at__
-// @return {String}
+
+///
+/// @alias string.slice
+/// @param {String} $__string__
+/// @param {Number} $__start-at__
+/// @param {Number} $__end-at__
+///
+/// @return {String}
+///
 @function slice($__string__, $__start-at__, $__end-at__: -1) {
     @return string.slice($__string__, $__start-at__, $__end-at__)
 }
 
-// @alias string.length
-// @param {String} $__string__
-// @return {Number}
+
+///
+/// @alias string.length
+/// @param {String} $__string__
+///
+/// @return {Number}
+///
 @function length($__string__) {
     @return string.length($__string__);
 }
 
-// @alias string.insert
-// @param {String} $__string__
-// @param {String} $__insert__
-// @param {Number} $__index__
-// @return {String}
+
+///
+/// @alias string.insert
+/// @param {String} $__string__
+/// @param {String} $__insert__
+/// @param {Number} $__index__
+///
+/// @return {String}
+///
 @function insert($__string__, $__insert__, $__index__) {
     @return string.insert($__string__, $__insert__, $__index__);
 }
 
-// @function trim
-// @desc trim spaces from start and end of the string
-// @param {String} $__string__
-// @return {String}
+
+///
+/// @function trim
+/// @desc trim spaces from start and end of the string
+/// @param {String} $__string__
+///
+/// @return {String}
+///
 @function trim($__string__, $__grapheme__: " ") {
-    // ToDo check a type of value
+    /// ToDo check a type of value
     $__start-point: string.slice($__string__, 1, 1);
     @if ($__start-point == $__grapheme__) {
         @return trim(string.slice($__string__, 2));
@@ -84,10 +120,14 @@
     @return $__string__;
 }
 
-// @param {String} $__string__
-// @param {String} $__separator__
-// @param {List} $__list__
-// @return {List}
+
+///
+/// @param {String} $__string__
+/// @param {String} $__separator__
+/// @param {List} $__list__
+///
+/// @return {List}
+///
 @function split($__string__, $__separator__: null, $__list__: ()) {
     $__separator-length: string.length($__separator__);
     $__separator-index: string.index($__string__, $__separator__);
@@ -105,11 +145,15 @@
     @return list.append($__list__, trim($__string__), "comma");
 }
 
-// @param {String} $__string__
-// @param {String} $__search__
-// @param {String} $__replace__
-// @param {String} $__mask__
-// @return {String}
+
+///
+/// @param {String} $__string__
+/// @param {String} $__search__
+/// @param {String} $__replace__
+/// @param {String} $__mask__
+///
+/// @return {String}
+///
 @function replace($__string__, $__search__, $__replace__: '', $__mask__: "all") {
     $__search-length: string.length($__search__);
     $__search-index: string.index($__string__, $__search__);

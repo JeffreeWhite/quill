@@ -2,12 +2,17 @@
 @use 'sass:map';
 @use '../../../vendor/core/list';
 
+///
+/// @param {Map} $expressions
+///
+/// @return {List}
+///
 @function post-processing($expressions) {
 	$expressionList: ();
 
 	@each $key, $queryMap in $expressions {
-		$resultList: if(map.has-key($queryMap, 'type'),
-			list.join((), map.keys(map.get($queryMap, 'type')), 'comma'), ()
+		$resultList: if(map.has-key($queryMap, 'device'),
+			list.join((), map.keys(map.get($queryMap, 'device')), 'comma'), ()
 		);
 
 		@each $dimension, $value in map.get($queryMap, 'features') {
