@@ -17,12 +17,12 @@
 // @return {Map}
 //
 @function parse($value, $operator, $context, $featureMap) {
-	$dimension: _calc-dimension($operator, $context);
-	$value: _find-value($value, $featureMap);
-	$units: _find-units($value, $featureMap);
-	$value: _calc-interval($value, $units, $operator, $dimension);
+    $dimension: _calc-dimension($operator, $context);
+    $value: _find-value($value, $featureMap);
+    $units: _find-units($value, $featureMap);
+    $value: _calc-interval($value, $units, $operator, $dimension);
 
-	@return ('#{$dimension}#{map.get($featureMap, 'name')}': $value);
+    @return ('#{$dimension}#{map.get($featureMap, 'name')}': $value);
 }
 
 
@@ -34,16 +34,15 @@
 // @return {String|Null}
 //
 @function _calc-dimension($operator, $context) {
-	$result: '';
+    $result: '';
 
-	@if (list.index(('<=', '<'), $operator)) {
-		$result: if($context == 'left', 'min-', 'max-');
-	}
-	@else if (list.index(('>=', '>'), $operator)) {
-		$result: if($context == 'left', 'max-', 'min-');
-	}
+    @if (list.index(('<=', '<'), $operator)) {
+        $result: if($context == 'left', 'min-', 'max-');
+    } @else if (list.index(('>=', '>'), $operator)) {
+        $result: if($context == 'left', 'max-', 'min-');
+    }
 
-	@return $result;
+    @return $result;
 }
 
 
@@ -54,16 +53,16 @@
 // @return {Number}
 //
 @function _find-value($value, $featureMap) {
-	@if is.empty($value) {
-		@error "";
-	}
+    @if is.empty($value) {
+        @error "";
+    }
 
-	$featureUnits: map.get($featureMap, 'units');
-	$featurePoints: map.get($featureMap, 'points');
-	@return if(not is.empty($featurePoints) and map.has-key($featurePoints, $value),
-		to.number(map.get($featurePoints, $value), true, $featureUnits),
-		to.number($value, true, $featureUnits)
-	);
+    $featureUnits: map.get($featureMap, 'units');
+    $featurePoints: map.get($featureMap, 'points');
+    @return if(not is.empty($featurePoints) and map.has-key($featurePoints, $value),
+        to.number(map.get($featurePoints, $value), true, $featureUnits),
+        to.number($value, true, $featureUnits)
+    );
 }
 
 
@@ -74,19 +73,19 @@
 // @return {String}
 //
 @function _find-units($value, $featureMap) {
-	$featureUnits: const.get(map.get($featureMap, 'units'));
+    $featureUnits: const.get(map.get($featureMap, 'units'));
 
-	@if (math.is-unitless($value)) {
-		@error "is unitless";
-	}
+    @if (math.is-unitless($value)) {
+        @error "is unitless";
+    }
 
-	$unit: math.unit($value);
+    $unit: math.unit($value);
 
-	@if not (map.has-key($featureUnits, $unit)) {
-		@error "not a unit";
-	}
+    @if not (map.has-key($featureUnits, $unit)) {
+        @error "not a unit";
+    }
 
-	@return $unit;
+    @return $unit;
 }
 
 
@@ -99,15 +98,15 @@
 // @return {Number}
 //
 @function _calc-interval($value, $unit, $operator, $dimension) {
-	@if not (map.has-key(settings.get-interval-map(), $unit)) or (is.empty($dimension)) {
-		@return $value;
-	}
+    @if not (map.has-key(settings.get-interval-map(), $unit)) or (is.empty($dimension)) {
+        @return $value;
+    }
 
-	$interval: map.get(settings.get-interval-map(), $unit);
+    $interval: map.get(settings.get-interval-map(), $unit);
 
-	@if (string.index($operator, '=') == 2) {
-		$value: if($dimension == 'min-', $value + $interval, $value - $interval);
-	}
+    @if (string.index($operator, '=') == 2) {
+        $value: if($dimension == 'min-', $value + $interval, $value - $interval);
+    }
 
-	@return $value;
+    @return $value;
 }
