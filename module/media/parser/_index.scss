@@ -13,6 +13,9 @@
 @use "../../../vendor/core/const";
 
 @use 'device';
+@use 'feature';
+@use 'operator';
+@use 'conditions';
 @use 'range';
 @use 'discrete';
 
@@ -34,10 +37,10 @@
         ));
     }
 
-    $featureMap: _parse-feature($_condition_);
-    @if ($featureMap != null) {
-        @each $context, $condition in _parse-conditions($_condition_, $featureMap) {
-            $operator:  _parse-operator($condition, map.get($featureMap, 'type'));
+    $featureMap: feature.parse($_condition_);
+    @if not (is.empty($featureMap)) {
+        @each $context, $condition in conditions.parse($_condition_, $featureMap) {
+            $operator:  operator.parse($condition, map.get($featureMap, 'type'));
             $condition: string.trim(string.replace($condition, $operator));
             $expressions: map.deep-merge($expressions, (
                 'features': if(map.get($featureMap, 'type') == 'range',
@@ -49,56 +52,4 @@
     }
 
     @return $expressions;
-}
-
-
-
-@function _parse-conditions($condition, $featureMap) {
-    $featureType: map.get($featureMap, 'type');
-    $featureAlias: map.get($featureMap, 'alias');
-    $conditionList: string.split($condition, $featureAlias);
-
-    $conditionMap: ();
-    @for $i from 1 through List.length($conditionList) {
-        @if List.nth($conditionList, $i) != '' {
-            @if ($i == 1 and $featureType != 'discrete') {
-                $conditionMap: map.deep-merge($conditionMap,
-                    ('left': List.nth($conditionList, $i))
-                )
-            }
-
-            @if ($i == 2) {
-                $conditionMap: map.deep-merge($conditionMap,
-                    ('right': List.nth($conditionList, $i))
-                )
-            }
-        }
-    }
-
-    @return $conditionMap;
-}
-
-
-@function _parse-feature($condition) {
-    @each $featureAlias, $featureMap in settings.get-feature-map() {
-        @if (string.index($condition, $featureAlias)) {
-            @return map.deep-merge($featureMap, (
-                'alias': $featureAlias
-            ));
-        }
-    }
-
-    @return null;
-}
-
-
-
-
-
-@function _parse-operator($condition, $featureType) {
-    @each $operator in settings.get-operator-list($featureType) {
-        @if (string.index($condition, $operator)) {
-            @return $operator;
-        }
-    }
 }

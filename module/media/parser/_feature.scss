@@ -1,0 +1,15 @@
+@use "sass:map";
+@use "../settings";
+@use "../../../vendor/core/string";
+
+@function parse($condition) {
+    @each $featureAlias, $featureMap in settings.get-feature-map() {
+        @if (string.index($condition, $featureAlias)) {
+            @return map.deep-merge($featureMap, (
+                'alias': $featureAlias
+            ));
+        }
+    }
+
+    @return null;
+}

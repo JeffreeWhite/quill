@@ -1,0 +1,28 @@
+@use 'sass:map';
+@use '../../../vendor/core/list';
+@use '../../../vendor/core/string';
+
+@function parse($condition, $featureMap) {
+    $featureType: map.get($featureMap, 'type');
+    $featureAlias: map.get($featureMap, 'alias');
+    $conditionList: string.split($condition, $featureAlias);
+
+    $conditionMap: ();
+    @for $i from 1 through list.length($conditionList) {
+        @if list.nth($conditionList, $i) != '' {
+            @if ($i == 1 and $featureType != 'discrete') {
+                $conditionMap: map.deep-merge($conditionMap,
+                    ('left': list.nth($conditionList, $i))
+                )
+            }
+
+            @if ($i == 2) {
+                $conditionMap: map.deep-merge($conditionMap,
+                    ('right': list.nth($conditionList, $i))
+                )
+            }
+        }
+    }
+
+    @return $conditionMap;
+}

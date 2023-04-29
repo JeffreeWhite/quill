@@ -1,0 +1,13 @@
+@use 'sass:map';
+@use '../settings';
+@use '../../../vendor/core/list';
+@use '../../../vendor/core/string';
+
+
+@function parse($condition, $featureType) {
+    @each $operator in settings.get-operator-list($featureType) {
+        @if (string.index($condition, $operator)) {
+            @return $operator;
+        }
+    }
+}
