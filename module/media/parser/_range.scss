@@ -8,14 +8,15 @@
 @use '../../../vendor/core/const';
 @use '../../../vendor/core/string';
 
-//
-// @param {String} $value
-// @param {String} $operator
-// @param {String} $context
-// @param {Map} $featureMap
-//
-// @return {Map}
-//
+
+///
+/// @param {String} $value
+/// @param {String} $operator
+/// @param {String} $context
+/// @param {Map} $featureMap
+///
+/// @return {Map}
+///
 @function parse($value, $operator, $context, $featureMap) {
     $dimension: _calc-dimension($operator, $context);
     $value: _find-value($value, $featureMap);
@@ -26,13 +27,13 @@
 }
 
 
-//
-// @param {String} $operator
-// @param {String} $context
-// @param {String} $featureType
-//
-// @return {String|Null}
-//
+///
+/// @param {String} $operator
+/// @param {String} $context
+/// @param {String} $featureType
+///
+/// @return {String|Null}
+///
 @function _calc-dimension($operator, $context) {
     $result: '';
 
@@ -46,12 +47,12 @@
 }
 
 
-//
-// @param {String} $value
-// @param {Map} $featureMap
-//
-// @return {Number}
-//
+///
+/// @param {String} $value
+/// @param {Map} $featureMap
+///
+/// @return {Number}
+///
 @function _find-value($value, $featureMap) {
     @if is.empty($value) {
         @error "";
@@ -66,12 +67,12 @@
 }
 
 
-//
-// @param {String} $value
-// @param {Map} $featureMap
-//
-// @return {String}
-//
+///
+/// @param {String} $value
+/// @param {Map} $featureMap
+///
+/// @return {String}
+///
 @function _find-units($value, $featureMap) {
     $featureUnits: const.get(map.get($featureMap, 'units'));
 
@@ -89,14 +90,14 @@
 }
 
 
-//
-// @param {Number} $value
-// @param {String} $unit
-// @param {String} $operator
-// @param {String} $dimension
-//
-// @return {Number}
-//
+///
+/// @param {Number} $value
+/// @param {String} $unit
+/// @param {String} $operator
+/// @param {String} $dimension
+///
+/// @return {Number}
+///
 @function _calc-interval($value, $unit, $operator, $dimension) {
     @if not (map.has-key(settings.get-interval-map(), $unit)) or (is.empty($dimension)) {
         @return $value;
