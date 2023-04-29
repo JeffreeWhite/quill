@@ -2,6 +2,16 @@
 @use 'sass:map';
 @use '../../../vendor/core/list';
 
+///
+/// @param {List} $queryList
+/// @param (List) $queryChunk
+///
+/// @example construction(("(min-width: 100px)", "(max-width: 1000px)"), ())
+/// @return {String} (min-width: 100px) and (max-width: 1000px)
+///
+/// @example construction(("(min-width: 100px)", "(max-width: 1000px)"), ("(min-width: 200px)", "(max-width: 1200px)"), ())
+/// @return {String} (min-width: 100px) and (max-width: 1000px), (min-width: 200px) and (max-width: 1200px)
+///
 @function construction($queryList, $queryChunk: ()) {
     @if ($queryChunk == () and list.length($queryList) > 0) {
         $queryChunk: list.nth($queryList, 1);
