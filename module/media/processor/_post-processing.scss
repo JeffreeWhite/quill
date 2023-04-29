@@ -8,19 +8,19 @@
 /// @return {List}
 ///
 @function post-processing($expressions) {
-	$expressionList: ();
+    $expressionList: ();
 
-	@each $key, $queryMap in $expressions {
-		$resultList: if(map.has-key($queryMap, 'device'),
-			map.get($queryMap, 'device'), ()
-		);
+    @each $key, $queryMap in $expressions {
+        $resultList: if(map.has-key($queryMap, 'device'),
+            map.get($queryMap, 'device'), ()
+        );
 
-		@each $dimension, $value in map.get($queryMap, 'features') {
-			$resultList: list.join($resultList, ('(#{$dimension}: #{$value})'), 'comma')
-		}
+        @each $dimension, $value in map.get($queryMap, 'features') {
+            $resultList: list.join($resultList, ('(#{$dimension}: #{$value})'), 'comma')
+        }
 
-		$expressionList: list.append($expressionList, $resultList, 'comma');
-	}
+        $expressionList: list.append($expressionList, $resultList, 'comma');
+    }
 
-	@return $expressionList;
+    @return $expressionList;
 }

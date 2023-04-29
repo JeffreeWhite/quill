@@ -4,7 +4,7 @@
 
 ///
 /// @param {List} $queryList
-/// @param (List) $queryChunk
+/// @param {List} $queryChunk
 ///
 /// @example construction(("(min-width: 100px)", "(max-width: 1000px)"), ())
 /// @return {String} (min-width: 100px) and (max-width: 1000px)
