@@ -24,9 +24,13 @@
     $expressions: ();
 
     $device: device.parse($_condition_);
-    @if ($device != null) {
+    @if not (is.empty($device)) {
         @return map.deep-merge($expressions, (
-            'device': ($device: $device)
+            'device': list.append(
+                if(map.has-key($expressions, 'device'),
+                    map.get($expressions, 'device'), ()
+                ), $device, 'comma'
+            )
         ));
     }
 

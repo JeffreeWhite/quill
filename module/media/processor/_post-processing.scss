@@ -12,7 +12,7 @@
 
 	@each $key, $queryMap in $expressions {
 		$resultList: if(map.has-key($queryMap, 'device'),
-			list.join((), map.keys(map.get($queryMap, 'device')), 'comma'), ()
+			map.get($queryMap, 'device'), ()
 		);
 
 		@each $dimension, $value in map.get($queryMap, 'features') {
