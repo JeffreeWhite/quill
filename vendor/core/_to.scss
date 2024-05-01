@@ -22,7 +22,7 @@
 
 
 @function _to-number($value, $saveUnits: false, $unitMap: const.get(units.$constNameDistance), $result: 0, $isFloat: 0) {
-	$numbMap: const.get(chars.$constNameNumber);
+	$numbMap: const.get(chars.$NUMBERS);
 
 	$character: String.slice($value, 1, 1);
 	@if (map.has-key($numbMap, $character)) {
